@@ -1,7 +1,7 @@
 {
   "name": "debugger",
-	"displayName": "debugger-plugin",
-	"description": "VSCode Debugger plugin for Temporal",
+	"displayName": "temporal-debugger-plugin",
+	"description": "Temporal VSCode Debugger plugin",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.68.0"
