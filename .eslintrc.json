@@ -1,23 +1,34 @@
 {
-    "root": true,
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "project": "./tsconfig.json"
-    },
-    "plugins": [
-        "@typescript-eslint"
-    ],
-    "rules": {
-        "@typescript-eslint/naming-convention": "error",
-        "@typescript-eslint/semi": "error",
-        "curly": "error",
-        "eqeqeq": "error",
-        "no-throw-literal": "error",
-        "semi": "off"
-    },
-    "ignorePatterns": [
-        "out",
-        "dist",
-        "**/*.d.ts"
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint", "eslint-plugin-tsdoc", "deprecation"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "rules": {
+    "@typescript-eslint/naming-convention": "error",
+    "curly": "error",
+    "eqeqeq": "error",
+    "no-throw-literal": "error",
+    "semi": "off",
+    "object-shorthand": ["error", "always"],
+    "deprecation/deprecation": "warn",
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/no-floating-promises": ["error"],
+    "@typescript-eslint/explicit-module-boundary-types": 2,
+    "@typescript-eslint/no-unused-vars": [
+      1,
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
     ]
+  },
+  "ignorePatterns": ["out", "dist", "**/*.d.ts"]
 }
