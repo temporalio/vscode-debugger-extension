@@ -3,7 +3,7 @@ import * as vscode from "vscode"
 export function activate(context: vscode.ExtensionContext): void{
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("",() =>{
+        vscode.commands.registerCommand("temporal-debugger-plugin.start",() =>{
             const panel = vscode.window.createWebviewPanel(
                 "temporal-debugger-plugin",
                 "Temporal VSCode Debugger plugin",
