@@ -1,13 +1,18 @@
 import * as vscode from "vscode"
 
 export function activate(context: vscode.ExtensionContext){
-    const panel = vscode.window.createWebviewPanel(
-        "temporal-debugger-plugin",
-        "Temporal VSCode Debugger plugin",
-        vscode.ViewColumn.One,{}
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("",() =>{
+            const panel = vscode.window.createWebviewPanel(
+                "temporal-debugger-plugin",
+                "Temporal VSCode Debugger plugin",
+                vscode.ViewColumn.One,{}
+            );
+            // And set its HTML content
+            panel.webview.html = getWebViewContent();
+        })
     );
-    // And set its HTML content
-    panel.webview.html = getWebViewContent();
 }
 
 //HTML content of the webview
