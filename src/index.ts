@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 
-export function activate(context: vscode.ExtensionContext){
+export function activate(context: vscode.ExtensionContext): void{
 
     context.subscriptions.push(
         vscode.commands.registerCommand("",() =>{
@@ -13,6 +13,7 @@ export function activate(context: vscode.ExtensionContext){
             panel.webview.html = getWebViewContent();
         })
     );
+
 }
 
 //HTML content of the webview
