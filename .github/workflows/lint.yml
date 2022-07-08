@@ -28,4 +28,6 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
+      - name: Run linters
+        run : npm run lint
 
