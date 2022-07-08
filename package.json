@@ -31,9 +31,6 @@
     "eslint-plugin-tsdoc": "^0.2.16"
   },
   "scripts": {
-    "prepare": "husky install"
-  },
-  "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "lint":  "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check ."
   }
 }

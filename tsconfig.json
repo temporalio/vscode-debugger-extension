@@ -1,14 +1,19 @@
 {
+	"extends": "@tsconfig/node16/tsconfig.json",
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "ES2020",
+		"target": "ES2021",
 		"outDir": "out",
 		"lib": [
-			"ES2020"
+			"ES2021"
 		],
 		"sourceMap": true,
 		"rootDir": "src",
-		"strict": true   /* enable all strict type-checking options */
+		"strict": true ,  /* enable all strict type-checking options */
+		"esModuleInterop": true,
+    	"skipLibCheck": true,
+    	"forceConsistentCasingInFileNames": true,
+    	"moduleResolution": "node"
 		/* Additional Checks */
 		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
 		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
