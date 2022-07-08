@@ -6,7 +6,9 @@
   "engines": {
     "vscode": "^1.68.0"
   },
-  "activationEvents": ["onCommand:temporal-debugger-plugin.start"],
+  "activationEvents": [
+    "onCommand:temporal-debugger-plugin.start"
+  ],
   "categories": [
     "Debuggers",
     "Visualization"
