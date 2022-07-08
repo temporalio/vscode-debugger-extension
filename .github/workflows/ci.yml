@@ -40,13 +40,12 @@ jobs:
         env:
           BUILD_CORE_RELEASE: true
 
-      # Prettier check
-      - name: Prettier Action
-        uses: creyD/prettier_action@v4.2
-
       # Lint check
       - name: Lint Action
         uses: wearerequired/lint-action@v2.0.0
+        with:
+          eslint: true
+          prettier: true
 
       # docker-compose
       - name: Checkout docker-compose repo
