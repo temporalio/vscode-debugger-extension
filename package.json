@@ -1,0 +1,38 @@
+{
+  "name": "debugger",
+  "displayName": "temporal-debugger-plugin",
+  "description": "Temporal VSCode Debugger plugin",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.68.0"
+  },
+  "categories": [
+    "Debuggers",
+    "Visualization"
+  ],
+  "keywords": [
+    "temporal",
+    "workflow",
+    "debugger",
+    "vscode"
+  ],
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
+    "@types/glob": "^7.2.0",
+    "@types/node": "^16.0.0",
+    "@types/vscode": "^1.68.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/parser": "^5.30.0",
+    "@vscode/test-electron": "^2.1.5",
+    "eslint": "^8.18.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-deprecation": "^1.3.2",
+    "eslint-plugin-tsdoc": "^0.2.16",
+    "prettier": "2.7.1",
+    "typescript": "^4.7.4"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check ."
+  }
+}
