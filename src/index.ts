@@ -13,7 +13,6 @@ export function activate(context: vscode.ExtensionContext): void {
       panel.webview.html = getWebViewContent()
     }),
   )
-
 }
 
 // function deactive(){}
