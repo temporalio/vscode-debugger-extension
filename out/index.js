@@ -31,16 +31,9 @@ function activate(context) {
         // And set its HTML content
         panel.webview.html = getWebViewContent();
     }));
-    // console.log('Congratulations, your extension "helloworld-sample" is now active!');
-    // const disposable = vscode.commands.registerCommand('temporal-debugger-plugin.start', () => {
-    // 	// The code you place here will be executed every time your command is executed
-    // 	// Display a message box to the user
-    // 	vscode.window.showInformationMessage('Hello World!');
-    //   context.subscriptions.push(disposable);
-    // });
 }
 exports.activate = activate;
-function deactive() { }
+// function deactive(){}
 //HTML content of the webview
 function getWebViewContent() {
     return `<p>

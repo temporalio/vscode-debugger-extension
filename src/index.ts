@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
 }
 
-function deactive(){}
+// function deactive(){}
 
 //HTML content of the webview
 function getWebViewContent() {
