@@ -9,6 +9,15 @@
   "activationEvents": [
     "onCommand:temporal-debugger-plugin.start"
   ],
+  "main": "./out/index.js",
+  "contributes": {
+		"commands": [
+			{
+				"command": "temporal-debugger-plugin.start",
+				"title": "Hello Temporal"
+			}
+		]
+	},
   "categories": [
     "Debuggers",
     "Visualization"
