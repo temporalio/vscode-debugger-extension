@@ -11,13 +11,13 @@
   ],
   "main": "./out/index.js",
   "contributes": {
-		"commands": [
-			{
-				"command": "temporal-debugger-plugin.start",
-				"title": "Hello Temporal"
-			}
-		]
-	},
+    "commands": [
+      {
+        "command": "temporal-debugger-plugin.start",
+        "title": "Hello Temporal"
+      }
+    ]
+  },
   "categories": [
     "Debuggers",
     "Visualization"
