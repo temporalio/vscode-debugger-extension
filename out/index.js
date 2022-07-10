@@ -26,25 +26,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = void 0;
 const vscode = __importStar(require("vscode"));
 function activate(context) {
-    // context.subscriptions.push(
-    //   vscode.commands.registerCommand("temporal-debugger-plugin.start", () => {
-    //     const panel = vscode.window.createWebviewPanel(
-    //       "temporal-debugger-plugin",
-    //       "Temporal VSCode Debugger plugin",
-    //       vscode.ViewColumn.One,
-    //       {},
-    //     )
-    //     // And set its HTML content
-    //     panel.webview.html = getWebViewContent()
-    //   }),
-    // )
-    console.log('Congratulations, your extension "helloworld-sample" is now active!');
-    const disposable = vscode.commands.registerCommand('temporal-debugger-plugin.start', () => {
-        // The code you place here will be executed every time your command is executed
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World!');
-        context.subscriptions.push(disposable);
-    });
+    context.subscriptions.push(vscode.commands.registerCommand("temporal-debugger-plugin.start", () => {
+        const panel = vscode.window.createWebviewPanel("temporal-debugger-plugin", "Temporal VSCode Debugger plugin", vscode.ViewColumn.One, {});
+        // And set its HTML content
+        panel.webview.html = getWebViewContent();
+    }));
+    // console.log('Congratulations, your extension "helloworld-sample" is now active!');
+    // const disposable = vscode.commands.registerCommand('temporal-debugger-plugin.start', () => {
+    // 	// The code you place here will be executed every time your command is executed
+    // 	// Display a message box to the user
+    // 	vscode.window.showInformationMessage('Hello World!');
+    //   context.subscriptions.push(disposable);
+    // });
 }
 exports.activate = activate;
 function deactive() { }
