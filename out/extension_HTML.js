@@ -1,9 +1,9 @@
-"use strict"
-Object.defineProperty(exports, "__esModule", { value: true })
-exports.getWebViewContent = void 0
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getWebViewContent = void 0;
 //HTML content of the webview
 function getWebViewContent() {
-  return `<p>
+    return `<p>
       Debug by ID
       </p>
       <form>
@@ -34,6 +34,6 @@ function getWebViewContent() {
       <div/>
       <label>Client private key</label>
       <input type=file />
-      </form>`
+      </form>`;
 }
-exports.getWebViewContent = getWebViewContent
+exports.getWebViewContent = getWebViewContent;

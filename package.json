@@ -14,7 +14,7 @@
     "commands": [
       {
         "command": "temporal-debugger-plugin.start",
-        "title": "Hello Temporal"
+        "title": "Launch Temporal Debugger Plugin"
       }
     ]
   },
