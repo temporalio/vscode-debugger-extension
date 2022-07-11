@@ -1,5 +1,5 @@
 //HTML content of the webview
-export function getWebViewContent() {
+export function getWebViewContent(): string {
   return `<p>
       Debug by ID
       </p>
