@@ -6,7 +6,7 @@ export function activate(context: vscode.ExtensionContext): void {
       const panel = vscode.window.createWebviewPanel(
         "temporal-debugger-plugin",
         "Temporal VSCode Debugger plugin",
-        vscode.ViewColumn.One,
+        vscode.ViewColumn.Beside,
         {},
       )
       // And set its HTML content
