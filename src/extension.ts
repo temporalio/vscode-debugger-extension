@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
-import { getWebViewContent as gethtml } from "./extension_HTML"
-// import gethtml from "./extension_HTML.html"
+import * as path from "path"
+import * as fs from "fs"
 
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
@@ -11,8 +11,8 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.ViewColumn.Beside,
         {},
       )
-      // And set its HTML content
-      panel.webview.html = gethtml()
+      const filePath: vscode.Uri = vscode.Uri.file(path.join(context.extensionPath, "src", "./main_panel.html"))
+      panel.webview.html = fs.readFileSync(filePath.fsPath, "utf8")
     }),
   )
 }
