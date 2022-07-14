@@ -11,7 +11,6 @@
 // export class startExtension{
 //     protected currentEvent = -1
 //     protected history?: temporal.api.history.v1.IHistory
-    
 
 //     async startDebugging() {
 //         let buff
@@ -43,8 +42,4 @@
 //         })
 //     }
 
-    
 // }
-
-
-
