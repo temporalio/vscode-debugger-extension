@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { getNonce } from "./getNonce"
-import * as path from "path"
-import * as fs from "fs"
+// import * as path from "path"
+// import * as fs from "fs"
 
 export class StartExtension {
   /**
@@ -47,7 +47,7 @@ export class StartExtension {
     StartExtension.currentPanel = new StartExtension(panel, extensionUri)
   }
 
-  public static kill() {
+  public static kill(): void {
     StartExtension.currentPanel?.dispose()
     StartExtension.currentPanel = undefined
   }
@@ -81,7 +81,7 @@ export class StartExtension {
     // );
   }
 
-  public dispose() {
+  public dispose(): void {
     StartExtension.currentPanel = undefined
 
     // Clean up our resources
@@ -124,7 +124,7 @@ export class StartExtension {
     })
   }
 
-  private _getHtmlForWebview(webview: vscode.Webview) {
+  private _getHtmlForWebview(webview: vscode.Webview): string {
     // // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "main_panel.js"))
 
