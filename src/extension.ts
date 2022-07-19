@@ -1,41 +1,51 @@
 import * as vscode from "vscode"
-import * as path from "path"
-import * as fs from "fs"
+import { StartExtension } from "./startExtension"
 
-export function activate(context: vscode.ExtensionContext): void {
+// export function activate(context: vscode.ExtensionContext): void {
+//   context.subscriptions.push(
+//     vscode.commands.registerCommand("temporal-debugger-plugin.start", () => {
+//       const panel = vscode.window.createWebviewPanel(
+//         "temporal-debugger-plugin",
+//         "Temporal VSCode Debugger plugin",
+//         vscode.ViewColumn.Beside,
+//         {
+//           enableScripts: true,
+//           // Only allow the webview to access resources in our extension's media directory
+//           localResourceRoots: [
+
+//             vscode.Uri.file(path.join(context.extensionPath, "webviews", "components", "main_panel.svelte")),
+//           ],
+//         },
+//       )
+//       const filePath: vscode.Uri = vscode.Uri.file(
+//         path.join(context.extensionPath, "webviews", "components", "main_panel.svelte"),
+//       )
+//       panel.webview.html = fs.readFileSync(filePath.fsPath, "utf8")
+
+//     }),
+//   )
+// }
+
+// this method is called when your extension is activated
+// your extension is activated the very first time the command is executed
+export function activate(context: vscode.ExtensionContext) {
+  console.log('Congratulations, your extension "vstodo" is now active!')
   context.subscriptions.push(
     vscode.commands.registerCommand("temporal-debugger-plugin.start", () => {
-      const panel = vscode.window.createWebviewPanel(
-        "temporal-debugger-plugin",
-        "Temporal VSCode Debugger plugin",
-        vscode.ViewColumn.Beside,
-        { enableScripts: true },
-      )
-      const filePath: vscode.Uri = vscode.Uri.file(path.join(context.extensionPath, "src", "./html/main_panel.html"))
-      panel.webview.html = fs.readFileSync(filePath.fsPath, "utf8")
-
-      // Handle messages from the webview
-      // panel.webview.onDidReceiveMessage(
-      //   message => {
-      //     switch (message.command) {
-      //       case 'alert':
-      //         vscode.window.showErrorMessage(message.text);
-      //         return;
-      //     }
-      //   },
-      //   undefined,
-      //   context.subscriptions
-      // );
+      StartExtension.createOrShow(context.extensionUri)
+    }),
+  )
+  //refresing
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vstodo.refresh", () => {
+      StartExtension.kill()
+      StartExtension.createOrShow(context.extensionUri)
+      setTimeout(() => {
+        vscode.commands.executeCommand("workbench.action.webview.openDeveloperTools")
+      }, 500)
     }),
   )
 }
 
-// export function startDebug() {
-//   const element = document.getElementById(".start");
-//   element?.addEventListener("click", listenerFunction);
-// }
-
-// function listenerFunction() {
-//   console.log("start")
-//   location.href = "www.youtube.com"
-// }
+// this method is called when your extension is deactivated
+export function deactivate() {}
