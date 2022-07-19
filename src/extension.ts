@@ -28,15 +28,15 @@ import { StartExtension } from "./startExtension"
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext): void {
+export async function activate(context: vscode.ExtensionContext) {
   console.log('Congratulations, your extension "vstodo" is now active!')
-  context.subscriptions.push(
+  await context.subscriptions.push(
     vscode.commands.registerCommand("temporal-debugger-plugin.start", () => {
       StartExtension.createOrShow(context.extensionUri)
     }),
   )
   //refresing
-  context.subscriptions.push(
+  await context.subscriptions.push(
     vscode.commands.registerCommand("vstodo.refresh", () => {
       StartExtension.kill()
       StartExtension.createOrShow(context.extensionUri)
