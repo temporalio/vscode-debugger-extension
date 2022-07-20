@@ -1,43 +1,20 @@
 import * as vscode from "vscode"
 import { StartExtension } from "./startExtension"
 
-// export function activate(context: vscode.ExtensionContext): void {
-//   context.subscriptions.push(
-//     vscode.commands.registerCommand("temporal-debugger-plugin.start", () => {
-//       const panel = vscode.window.createWebviewPanel(
-//         "temporal-debugger-plugin",
-//         "Temporal VSCode Debugger plugin",
-//         vscode.ViewColumn.Beside,
-//         {
-//           enableScripts: true,
-//           // Only allow the webview to access resources in our extension's media directory
-//           localResourceRoots: [
+/*
+ * This method is called when your extension is activated
+ * Your extension is activated the very first time the command is executed*/
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
+  console.log('Congratulations, your extension "temporal-debugger-plugin" is now active!')
 
-//             vscode.Uri.file(path.join(context.extensionPath, "webviews", "components", "main_panel.svelte")),
-//           ],
-//         },
-//       )
-//       const filePath: vscode.Uri = vscode.Uri.file(
-//         path.join(context.extensionPath, "webviews", "components", "main_panel.svelte"),
-//       )
-//       panel.webview.html = fs.readFileSync(filePath.fsPath, "utf8")
-
-//     }),
-//   )
-// }
-
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export async function activate(context: vscode.ExtensionContext): Promise<any> {
-  console.log('Congratulations, your extension "vstodo" is now active!')
-  await context.subscriptions.push(
+  context.subscriptions.push(
     vscode.commands.registerCommand("temporal-debugger-plugin.start", async () => {
       await StartExtension.createOrShow(context.extensionUri)
     }),
   )
   //refresing
-  await context.subscriptions.push(
-    vscode.commands.registerCommand("vstodo.refresh", async () => {
+  context.subscriptions.push(
+    vscode.commands.registerCommand("temporal-debugger-plugin.refresh", async () => {
       await StartExtension.kill()
       await StartExtension.createOrShow(context.extensionUri)
       setTimeout(async () => {
@@ -46,6 +23,3 @@ export async function activate(context: vscode.ExtensionContext): Promise<any> {
     }),
   )
 }
-
-// this method is called when your extension is deactivated
-// export function deactivate() {}
