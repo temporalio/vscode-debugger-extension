@@ -15,7 +15,7 @@ export class StartExtension {
   private readonly _extensionUri: vscode.Uri
   private _disposables: vscode.Disposable[] = []
 
-  public static createOrShow(extensionUri: vscode.Uri) {
+  public static async createOrShow(extensionUri: vscode.Uri): Promise<any> {
     const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined
 
     // If we already have a panel, show it.
@@ -38,8 +38,6 @@ export class StartExtension {
         localResourceRoots: [
           vscode.Uri.joinPath(extensionUri, "media"),
           vscode.Uri.joinPath(extensionUri, "out/compiled"),
-          // vscode.Uri.file(path.join("out/compiled")),
-          // vscode.Uri.file(path.join("media")),
         ],
       },
     )
@@ -47,15 +45,16 @@ export class StartExtension {
     StartExtension.currentPanel = new StartExtension(panel, extensionUri)
   }
 
-  public static kill(): void {
-    StartExtension.currentPanel?.dispose()
+  public static async kill(): Promise<any> {
+    await StartExtension.currentPanel?.dispose()
     StartExtension.currentPanel = undefined
   }
 
-  public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
+  public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri): void {
     StartExtension.currentPanel = new StartExtension(panel, extensionUri)
   }
 
+  //@typescript-eslint/no-floating-promises
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
     this._panel = panel
     this._extensionUri = extensionUri
@@ -66,22 +65,9 @@ export class StartExtension {
     // Listen for when the panel is disposed
     // This happens when the user closes the panel or when the panel is closed programatically
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
-
-    // // Handle messages from the webview
-    // this._panel.webview.onDidReceiveMessage(
-    //   (message) => {
-    //     switch (message.command) {
-    //       case "alert":
-    //         vscode.window.showErrorMessage(message.text);
-    //         return;
-    //     }
-    //   },
-    //   null,
-    //   this._disposables
-    // );
   }
 
-  public dispose(): void {
+  public async dispose(): Promise<any> {
     StartExtension.currentPanel = undefined
 
     // Clean up our resources
@@ -90,12 +76,12 @@ export class StartExtension {
     while (this._disposables.length) {
       const x = this._disposables.pop()
       if (x) {
-        x.dispose()
+        await x.dispose()
       }
     }
   }
 
-  private async _update() {
+  private _update(): void {
     const webview = this._panel.webview
 
     this._panel.webview.html = this._getHtmlForWebview(webview)
@@ -105,21 +91,16 @@ export class StartExtension {
           if (!data.value) {
             return
           }
-          vscode.window.showInformationMessage(data.value)
+          await vscode.window.showInformationMessage(data.value)
           break
         }
         case "onError": {
           if (!data.value) {
             return
           }
-          vscode.window.showErrorMessage(data.value)
+          await vscode.window.showErrorMessage(data.value)
           break
         }
-        // case "tokens": {
-        //   await Util.globalState.update(accessTokenKey, data.accessToken);
-        //   await Util.globalState.update(refreshTokenKey, data.refreshToken);
-        //   break;
-        // }
       }
     })
   }
@@ -135,11 +116,7 @@ export class StartExtension {
       vscode.Uri.joinPath(this._extensionUri, "media", "reset.css"),
     )
     const stylesMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css"))
-    // const cssUri = webview.asWebviewUri(
-    //   vscode.Uri.joinPath(this._extensionUri, "out", "compiled/swiper.css")
-    // );
 
-    // Use a nonce to only allow specific scripts to be run
     const nonce = getNonce()
 
     return `<!DOCTYPE html>
