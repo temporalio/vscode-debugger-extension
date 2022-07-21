@@ -1,8 +1,16 @@
 <script>
   // const vscode = acquireVsCodeApi()
 
-  const handleClick = () => {
-    console.log("Submit successfully!")
+  const onSubmit = (e) => {
+    const formData = new FormData(e.target)
+
+    const data = {}
+    for (let field of formData) {
+      const [key, value] = field
+      data[key] = value
+    }
+    console.log(data)
+    console.log("Form Submit successfully!")
   }
 </script>
 
@@ -21,7 +29,7 @@
   </form>
   <hr />
   <p>Configure server credentials (for downloading histories)</p>
-  <form>
+  <form on:submit|preventDefault={onSubmit}>
     <label for="address">Address</label>
     <input type="text" default="127.0.0.1:7233" />
     <label for="tls">TLS?</label>
@@ -32,9 +40,8 @@
     <div />
     <label for="clintKey">Client private key</label>
     <input type="file" />
+    <button type="submit">Submit</button>
   </form>
-  <div id="lines-of-code-counter" />
-  <button on:click={handleClick} id="submit">Submit</button>
 </main>
 
 <style>

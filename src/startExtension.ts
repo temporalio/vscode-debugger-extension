@@ -1,7 +1,5 @@
 import * as vscode from "vscode"
 import { getNonce } from "./getNonce"
-// import * as path from "path"
-// import * as fs from "fs"
 
 export class StartExtension {
   /**
@@ -16,7 +14,7 @@ export class StartExtension {
   private _disposables: vscode.Disposable[] = []
 
   public static async createOrShow(extensionUri: vscode.Uri): Promise<any> {
-    const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined
+    const column = vscode.window.activeTextEditor?.viewColumn
 
     // If we already have a panel, show it.
     if (StartExtension.currentPanel) {
@@ -109,14 +107,6 @@ export class StartExtension {
     // // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "main_panel.js"))
 
-    // Uri to load styles into webview
-    const stylesResetUri = webview.asWebviewUri(
-      // Local path to css styles
-
-      vscode.Uri.joinPath(this._extensionUri, "media", "reset.css"),
-    )
-    const stylesMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css"))
-
     const nonce = getNonce()
 
     return `<!DOCTYPE html>
@@ -129,8 +119,8 @@ export class StartExtension {
         -->
         <meta http-equiv="Content-Security-Policy" content="img-src https: data:; style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <link href="${stylesResetUri}" rel="stylesheet">
-                <link href="${stylesMainUri}" rel="stylesheet">
+                <link href="" rel="stylesheet">
+                <link href="" rel="stylesheet">
         <script nonce="${nonce}">
             
         </script>
@@ -141,5 +131,3 @@ export class StartExtension {
 			</html>`
   }
 }
-
-// }
