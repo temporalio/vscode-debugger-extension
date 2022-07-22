@@ -13,7 +13,7 @@ export class StartExtension {
   private readonly _extensionUri: vscode.Uri
   private _disposables: vscode.Disposable[] = []
 
-  public static async createOrShow(extensionUri: vscode.Uri): Promise<any> {
+  public static async createOrShow(extensionUri: vscode.Uri): Promise<void> {
     const column = vscode.window.activeTextEditor?.viewColumn
 
     // If we already have a panel, show it.
@@ -43,7 +43,7 @@ export class StartExtension {
     StartExtension.currentPanel = new StartExtension(panel, extensionUri)
   }
 
-  public static async kill(): Promise<any> {
+  public static async kill(): Promise<void> {
     await StartExtension.currentPanel?.dispose()
     StartExtension.currentPanel = undefined
   }
@@ -65,7 +65,7 @@ export class StartExtension {
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
   }
 
-  public async dispose(): Promise<any> {
+  public async dispose(): Promise<void> {
     StartExtension.currentPanel = undefined
 
     // Clean up our resources
@@ -83,24 +83,7 @@ export class StartExtension {
     const webview = this._panel.webview
 
     this._panel.webview.html = this._getHtmlForWebview(webview)
-    // webview.onDidReceiveMessage(async (data) => {
-    //   switch (data.type) {
-    //     case "onInfo": {
-    //       if (!data.value) {
-    //         return
-    //       }
-    //       await vscode.window.showInformationMessage(data.value)
-    //       break
-    //     }
-    //     case "onError": {
-    //       if (!data.value) {
-    //         return
-    //       }
-    //       await vscode.window.showErrorMessage(data.value)
-    //       break
-    //     }
-    //   }
-    // })
+
   }
 
   private _getHtmlForWebview(webview: vscode.Webview): string {

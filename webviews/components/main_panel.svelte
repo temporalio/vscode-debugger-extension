@@ -49,6 +49,7 @@
   </form>
   <hr />
   <p>Configure server credentials (for downloading histories)</p>
+  
   <form on:submit|preventDefault={downloadHistory}>
     <label for="address">Address</label>
     <input type="text" default="127.0.0.1:7233" name="Address" />
