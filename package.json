@@ -67,6 +67,10 @@
     "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check ."
   },
   "dependencies": {
+    "@temporalio/activity": "^1.0.0-rc.1",
+    "@temporalio/client": "^1.0.0-rc.1",
+    "@temporalio/worker": "^1.0.0-rc.1",
+    "@temporalio/workflow": "^1.0.0-rc.1",
     "vscode-uri": "^3.0.3"
   }
 }
