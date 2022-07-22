@@ -83,7 +83,6 @@ export class StartExtension {
     const webview = this._panel.webview
 
     this._panel.webview.html = this._getHtmlForWebview(webview)
-
   }
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
