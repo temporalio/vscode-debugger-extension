@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { getNonce } from "./getNonce"
+import crypto from "crypto"
 
 export class StartExtension {
   /**
@@ -83,51 +83,51 @@ export class StartExtension {
     const webview = this._panel.webview
 
     this._panel.webview.html = this._getHtmlForWebview(webview)
-    webview.onDidReceiveMessage(async (data) => {
-      switch (data.type) {
-        case "onInfo": {
-          if (!data.value) {
-            return
-          }
-          await vscode.window.showInformationMessage(data.value)
-          break
-        }
-        case "onError": {
-          if (!data.value) {
-            return
-          }
-          await vscode.window.showErrorMessage(data.value)
-          break
-        }
-      }
-    })
+    // webview.onDidReceiveMessage(async (data) => {
+    //   switch (data.type) {
+    //     case "onInfo": {
+    //       if (!data.value) {
+    //         return
+    //       }
+    //       await vscode.window.showInformationMessage(data.value)
+    //       break
+    //     }
+    //     case "onError": {
+    //       if (!data.value) {
+    //         return
+    //       }
+    //       await vscode.window.showErrorMessage(data.value)
+    //       break
+    //     }
+    //   }
+    // })
   }
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
-    // // And the uri we use to load this script in the webview
+    // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "main_panel.js"))
 
-    const nonce = getNonce()
+    const nonce = crypto.randomUUID()
 
     return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<!--
-					Use a content security policy to only allow loading images from https or from our extension directory,
-					and only allow scripts that have a specific nonce.
+    	<html lang="en">
+    	<head>
+    		<meta charset="UTF-8">
+    		<!--
+    			Use a content security policy to only allow loading images from https or from our extension directory,
+    			and only allow scripts that have a specific nonce.
         -->
         <meta http-equiv="Content-Security-Policy" content="img-src https: data:; style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}';">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <link href="" rel="stylesheet">
                 <link href="" rel="stylesheet">
         <script nonce="${nonce}">
-            
+
         </script>
-			</head>
-      <body>    
-			</body>
-			<script src="${scriptUri}" nonce="${nonce}">	</script>
-			</html>`
+    	</head>
+      <body>
+    	</body>
+    	<script src="${scriptUri}" nonce="${nonce}">	</script>
+    	</html>`
   }
 }
