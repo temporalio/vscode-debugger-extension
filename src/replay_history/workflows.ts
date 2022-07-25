@@ -10,6 +10,7 @@ export const signals = {
 }
 
 export async function calculator(): Promise<void> {
+  debugger
   let value = 0
   wf.setHandler(signals.add, (x: number) => {
     value += x
