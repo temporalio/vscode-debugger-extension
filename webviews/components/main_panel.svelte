@@ -8,7 +8,6 @@
       data[key] = value
     }
     console.log(data)
-    console.log("Form Submit for ids!")
   }
 
   const historyFile = (e) => {
@@ -19,7 +18,6 @@
       data[key] = value
     }
     console.log(data)
-    console.log("Form Submit for historyFile!")
   }
 
   const downloadHistory = (e) => {
@@ -29,12 +27,11 @@
       const [key, value] = field
       data[key] = value
     }
-    currentView = currentView == 0 ? 1 : 0
+
     vscode.postMessage({
       type: "onSubmit",
     })
     console.log(data)
-    console.log("Form Submit for downloadHistory!")
   }
 </script>
 

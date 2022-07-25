@@ -83,14 +83,12 @@ export class StartExtension {
     const webview = this._panel.webview
 
     this._panel.webview.html = this._getHtmlForWebview(webview)
-    
-    webview.onDidReceiveMessage(e => {
-      switch(e.type){
-        case "onSubmit":
-          vscode.window.showInformationMessage("Form Submited!");
-          
-        return;
 
+    //onsubmit postMessage
+    webview.onDidReceiveMessage(async (e): Promise<void> => {
+      switch (e.type) {
+        case "onSubmit":
+          await vscode.window.showInformationMessage("Form Submited!")
       }
     })
   }

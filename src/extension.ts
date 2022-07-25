@@ -11,5 +11,4 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       await StartExtension.createOrShow(context.extensionUri)
     }),
   )
-  
 }
