@@ -29,6 +29,10 @@
       const [key, value] = field
       data[key] = value
     }
+    currentView = currentView == 0 ? 1 : 0
+    vscode.postMessage({
+      type: "onSubmit",
+    })
     console.log(data)
     console.log("Form Submit for downloadHistory!")
   }
@@ -49,7 +53,7 @@
   </form>
   <hr />
   <p>Configure server credentials (for downloading histories)</p>
-  
+
   <form on:submit|preventDefault={downloadHistory}>
     <label for="address">Address</label>
     <input type="text" default="127.0.0.1:7233" name="Address" />

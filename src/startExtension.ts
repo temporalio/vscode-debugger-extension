@@ -83,6 +83,16 @@ export class StartExtension {
     const webview = this._panel.webview
 
     this._panel.webview.html = this._getHtmlForWebview(webview)
+    
+    webview.onDidReceiveMessage(e => {
+      switch(e.type){
+        case "onSubmit":
+          vscode.window.showInformationMessage("Form Submited!");
+          
+        return;
+
+      }
+    })
   }
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
@@ -103,11 +113,12 @@ export class StartExtension {
     		<meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <link href="" rel="stylesheet">
                 <link href="" rel="stylesheet">
-        <script nonce="${nonce}">
-
-        </script>
+        
     	</head>
       <body>
+      <script nonce="${nonce}">
+          const vscode = acquireVsCodeApi();
+        </script>
     	</body>
     	<script src="${scriptUri}" nonce="${nonce}">	</script>
     	</html>`
