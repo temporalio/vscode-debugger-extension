@@ -1,12 +1,12 @@
 import * as vscode from "vscode"
-import { getNonce } from "./getNonce"
-//import * as replay_history from "./replay_history/replayer"
 
-export class StartExtension {
+import { getNonce } from "./getNonce"
+
+export class HistoryPanel {
   /**
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
-  public static currentPanel: StartExtension | undefined
+  public static currentPanel: HistoryPanel | undefined
 
   public static readonly viewType = "temporal-debugger-plugin"
 
@@ -18,39 +18,34 @@ export class StartExtension {
     const column = vscode.window.activeTextEditor?.viewColumn
 
     // If we already have a panel, show it.
-    if (StartExtension.currentPanel) {
-      StartExtension.currentPanel._panel.reveal(column)
-      StartExtension.currentPanel._update()
+    if (HistoryPanel.currentPanel) {
+      HistoryPanel.currentPanel._panel.reveal(column)
+      HistoryPanel.currentPanel._update()
       return
     }
 
     // Otherwise, create a new panel.
-    const panel = vscode.window.createWebviewPanel(
-      StartExtension.viewType,
-      "VSinder",
-      column || vscode.ViewColumn.One,
-      {
-        // Enable javascript in the webview
-        enableScripts: true,
+    const panel = vscode.window.createWebviewPanel(HistoryPanel.viewType, "VSinder", column || vscode.ViewColumn.One, {
+      // Enable javascript in the webview
+      enableScripts: true,
 
-        // And restrict the webview to only loading content from our extension's `media` directory.
-        localResourceRoots: [
-          vscode.Uri.joinPath(extensionUri, "media"),
-          vscode.Uri.joinPath(extensionUri, "out/compiled"),
-        ],
-      },
-    )
+      // And restrict the webview to only loading content from our extension's `media` directory.
+      localResourceRoots: [
+        vscode.Uri.joinPath(extensionUri, "media"),
+        vscode.Uri.joinPath(extensionUri, "out/compiled"),
+      ],
+    })
 
-    StartExtension.currentPanel = new StartExtension(panel, extensionUri)
+    HistoryPanel.currentPanel = new HistoryPanel(panel, extensionUri)
   }
 
   public static async kill(): Promise<void> {
-    await StartExtension.currentPanel?.dispose()
-    StartExtension.currentPanel = undefined
+    await HistoryPanel.currentPanel?.dispose()
+    HistoryPanel.currentPanel = undefined
   }
 
   public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri): void {
-    StartExtension.currentPanel = new StartExtension(panel, extensionUri)
+    HistoryPanel.currentPanel = new HistoryPanel(panel, extensionUri)
   }
 
   //@typescript-eslint/no-floating-promises
@@ -67,7 +62,7 @@ export class StartExtension {
   }
 
   public async dispose(): Promise<void> {
-    StartExtension.currentPanel = undefined
+    HistoryPanel.currentPanel = undefined
 
     // Clean up our resources
     this._panel.dispose()
@@ -84,27 +79,13 @@ export class StartExtension {
     const webview = this._panel.webview
 
     this._panel.webview.html = this._getHtmlForWebview(webview)
-
-    //onsubmit postMessage
-
-    webview.onDidReceiveMessage(async (e): Promise<void> => {
-      switch (e.type) {
-        case "onSubmit":
-          await vscode.window.showInformationMessage("Form Submited!")
-          await StartExtension.kill()
-          // StartExtension.createOrShow(this._extensionUri)
-          setTimeout(async (): Promise<void> => {
-            console.log("work")
-            // replay_history.run()
-            await vscode.commands.executeCommand("temporal-debugger.history")
-          }, 500)
-      }
-    })
   }
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
     // And the uri we use to load this script in the webview
-    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "main_panel.js"))
+    const scriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "history_panel.js"),
+    )
 
     const nonce = getNonce()
 

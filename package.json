@@ -7,7 +7,8 @@
     "vscode": "^1.68.0"
   },
   "activationEvents": [
-    "onCommand:temporal-debugger-plugin.start"
+    "onCommand:temporal-debugger-plugin.start",
+    "onCommand:temporal-debugger.history"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -15,6 +16,10 @@
       {
         "command": "temporal-debugger-plugin.start",
         "title": "Launch Temporal Debugger Plugin"
+      },
+      {
+        "command": "temporal-debugger.history",
+        "title": "Launch Temporal Debugger History"
       }
     ]
   },

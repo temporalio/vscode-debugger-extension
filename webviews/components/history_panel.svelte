@@ -8,18 +8,11 @@
 <body>
   <h1>[ ]Workflow Task</h1>
 
-  <p class="event">Event in 1</p>
-  <p class="command">Command out 1</p>
-  <p class="event">Event in 2</p>
-  <p class="command">Command out 2</p>
-  <!-- <script src="script.js"></script> -->
+  <p>Event in 1</p>
+  <p>Command out 1</p>
+  <p>Event in 2</p>
+  <p>Command out 2</p>
 </body>
 
 <style>
-  .event:before {
-    content: ">";
-  }
-  .command:before {
-    content: "<";
-  }
 </style>
