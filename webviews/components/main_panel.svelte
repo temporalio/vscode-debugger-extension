@@ -1,8 +1,15 @@
-<script>
-  const data = {}
-  const ids = (e) => {
-    const formData = new FormData(e.target)
+<script lang="ts">
+  import HistoryView from "./history_panel.svelte"
 
+  let views: boolean = false
+  let nodeRef: any
+  const data = {} as any
+  const fileinfo = {} as any
+
+  //Eventlistener for getting workerID
+  const ids = (e: any) => {
+    const formData = new FormData(e.target)
+    //collecting data from
     for (let field of formData) {
       const [key, value] = field
       data[key] = value
@@ -10,36 +17,41 @@
     console.log(data)
   }
 
-  const historyFile = (e) => {
+  //Eventlistener for Debug from history file
+  const historyFile = (e: any) => {
     const formData = new FormData(e.target)
 
     for (let field of formData) {
       const [key, value] = field
-      data[key] = value
+      fileinfo[key] = value
     }
-    console.log(data)
+
+    console.log(fileinfo)
   }
-
-  const downloadHistory = (e) => {
+  // Eventlistener for Configure server credentials (for downloading histories)
+  const downloadHistory = (e: any) => {
     const formData = new FormData(e.target)
 
     for (let field of formData) {
       const [key, value] = field
       data[key] = value
     }
-
-    vscode.postMessage({
+    //posting massage on panel once Submit
+    tsvscode.postMessage({
       type: "onSubmit",
     })
     console.log(data)
+    views = true
+    //hidding the main once submit the form
+    nodeRef.parentNode.removeChild(nodeRef)
   }
 </script>
 
-<main>
+<main bind:this={nodeRef}>
   <p>Debug by ID</p>
   <form on:submit|preventDefault={ids}>
-    <input type="text" required placeholder="Workflow ID *" name="Workflow ID" />
-    <input type="text" placeholder="Run ID" name="Run Id" />
+    <input type="text" required placeholder="Workflow ID *" name="Workflow_ID" />
+    <input type="text" placeholder="Run ID" name="Run_Id" />
     <input type="submit" value="Start" />
   </form>
   <hr />
@@ -58,10 +70,14 @@
     <input type="checkbox" name="TLS" />
     <div />
     <label for="clientCert">Client cert</label>
-    <input type="file" name="Client cert" />
+    <input type="file" name="Client_cert" />
     <div />
     <label for="clintKey">Client private key</label>
-    <input type="file" name="Client private key" />
+    <input type="file" name="Client_private_key" />
     <button type="submit">Submit</button>
   </form>
 </main>
+<!-- showing history component on click of submit button-->
+{#if views}
+  <svelte:component this={HistoryView} />
+{/if}

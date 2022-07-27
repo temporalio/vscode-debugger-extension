@@ -7,8 +7,7 @@
     "vscode": "^1.68.0"
   },
   "activationEvents": [
-    "onCommand:temporal-debugger-plugin.start",
-    "onCommand:temporal-debugger.history"
+    "onCommand:temporal-debugger-plugin.start"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -16,10 +15,6 @@
       {
         "command": "temporal-debugger-plugin.start",
         "title": "Launch Temporal Debugger Plugin"
-      },
-      {
-        "command": "temporal-debugger.history",
-        "title": "Launch Temporal Debugger History"
       }
     ]
   },
@@ -35,6 +30,7 @@
   ],
   "devDependencies": {
     "@rollup/plugin-commonjs": "^22.0.1",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-typescript": "^8.3.3",
     "@tsconfig/node16": "^1.0.3",
@@ -42,8 +38,6 @@
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.1",
     "@types/node": "^16.0.0",
-    "@types/node-fetch": "^2.6.2",
-    "@types/polka": "^0.5.4",
     "@types/vscode": "^1.68.0",
     "@typescript-eslint/eslint-plugin": "^5.30.0",
     "@typescript-eslint/parser": "^5.30.0",
@@ -52,7 +46,6 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-deprecation": "^1.3.2",
     "eslint-plugin-tsdoc": "^0.2.16",
-    "glob": "^8.0.3",
     "prettier": "2.7.1",
     "rollup": "^2.77.0",
     "rollup-plugin-css-only": "^3.1.0",

@@ -1,6 +1,5 @@
 import * as vscode from "vscode"
-import { getNonce } from "./getNonce"
-//import * as replay_history from "./replay_history/replayer"
+import crypto from "crypto"
 
 export class StartExtension {
   /**
@@ -91,13 +90,6 @@ export class StartExtension {
       switch (e.type) {
         case "onSubmit":
           await vscode.window.showInformationMessage("Form Submited!")
-          await StartExtension.kill()
-          // StartExtension.createOrShow(this._extensionUri)
-          setTimeout(async (): Promise<void> => {
-            console.log("work")
-            // replay_history.run()
-            await vscode.commands.executeCommand("temporal-debugger.history")
-          }, 500)
       }
     })
   }
@@ -106,7 +98,7 @@ export class StartExtension {
     // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "main_panel.js"))
 
-    const nonce = getNonce()
+    const nonce = crypto.randomUUID()
 
     return `<!DOCTYPE html>
     	<html lang="en">
@@ -124,7 +116,7 @@ export class StartExtension {
     	</head>
       <body>
       <script nonce="${nonce}">
-          const vscode = acquireVsCodeApi();
+          const tsvscode = acquireVsCodeApi();
         </script>
     	</body>
     	<script src="${scriptUri}" nonce="${nonce}">	</script>
