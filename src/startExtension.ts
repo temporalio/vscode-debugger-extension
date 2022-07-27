@@ -1,11 +1,11 @@
 import * as vscode from "vscode"
 import crypto from "crypto"
 
-export class StartExtension {
+export class HistoryDebuggerExtension {
   /**
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
-  public static currentPanel: StartExtension | undefined
+  public static currentPanel: HistoryDebuggerExtension | undefined
 
   public static readonly viewType = "temporal-debugger-plugin"
 
@@ -17,15 +17,15 @@ export class StartExtension {
     const column = vscode.window.activeTextEditor?.viewColumn
 
     // If we already have a panel, show it.
-    if (StartExtension.currentPanel) {
-      StartExtension.currentPanel._panel.reveal(column)
-      StartExtension.currentPanel._update()
+    if (HistoryDebuggerExtension.currentPanel) {
+      HistoryDebuggerExtension.currentPanel._panel.reveal(column)
+      HistoryDebuggerExtension.currentPanel._update()
       return
     }
 
     // Otherwise, create a new panel.
     const panel = vscode.window.createWebviewPanel(
-      StartExtension.viewType,
+      HistoryDebuggerExtension.viewType,
       "VSinder",
       column || vscode.ViewColumn.One,
       {
@@ -40,16 +40,16 @@ export class StartExtension {
       },
     )
 
-    StartExtension.currentPanel = new StartExtension(panel, extensionUri)
+    HistoryDebuggerExtension.currentPanel = new HistoryDebuggerExtension(panel, extensionUri)
   }
 
   public static async kill(): Promise<void> {
-    await StartExtension.currentPanel?.dispose()
-    StartExtension.currentPanel = undefined
+    await HistoryDebuggerExtension.currentPanel?.dispose()
+    HistoryDebuggerExtension.currentPanel = undefined
   }
 
   public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri): void {
-    StartExtension.currentPanel = new StartExtension(panel, extensionUri)
+    HistoryDebuggerExtension.currentPanel = new HistoryDebuggerExtension(panel, extensionUri)
   }
 
   //@typescript-eslint/no-floating-promises
@@ -66,7 +66,7 @@ export class StartExtension {
   }
 
   public async dispose(): Promise<void> {
-    StartExtension.currentPanel = undefined
+    HistoryDebuggerExtension.currentPanel = undefined
 
     // Clean up our resources
     this._panel.dispose()
@@ -96,7 +96,7 @@ export class StartExtension {
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
     // And the uri we use to load this script in the webview
-    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "main_panel.js"))
+    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "app.js"))
 
     const nonce = crypto.randomUUID()
 
@@ -117,7 +117,7 @@ export class StartExtension {
       <body>
       <script nonce="${nonce}">
       <!-- rendering commend to main panel as globle varable -->
-          const tsvscode = acquireVsCodeApi();
+          const vscode = acquireVsCodeApi();
         </script>
     	</body>
     	<script src="${scriptUri}" nonce="${nonce}">	</script>
