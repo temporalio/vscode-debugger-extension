@@ -14,7 +14,7 @@
       "cwd": "${workspaceRoot}/src",
       "skipFiles": ["<node_internals>/**"],
       "args": ["${file}"],
-      "internalConsoleOptions": "openOnSessionStart"
+      "internalConsoleOptions": "openOnSessionStart",
     },
     {
       "name": "Run Extension",
@@ -22,7 +22,6 @@
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
-      "preLaunchTask": "${defaultBuildTask}"
     },
     {
       "name": "Extension Tests",
@@ -33,7 +32,6 @@
         "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
       ],
       "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
-      "preLaunchTask": "${defaultBuildTask}"
     }
   ]
 }

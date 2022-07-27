@@ -96,7 +96,7 @@ export class StartExtension {
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
     // And the uri we use to load this script in the webview
-    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "main_panel.js"))
+    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "app.js"))
 
     const nonce = crypto.randomUUID()
 
@@ -117,7 +117,7 @@ export class StartExtension {
       <body>
       <script nonce="${nonce}">
       <!-- rendering commend to main panel as globle varable -->
-          const tsvscode = acquireVsCodeApi();
+          const vscode = acquireVsCodeApi();
         </script>
     	</body>
     	<script src="${scriptUri}" nonce="${nonce}">	</script>
