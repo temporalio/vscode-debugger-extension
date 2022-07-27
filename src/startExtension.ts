@@ -116,6 +116,7 @@ export class StartExtension {
     	</head>
       <body>
       <script nonce="${nonce}">
+      <!-- rendering commend to main panel as globle varable -->
           const tsvscode = acquireVsCodeApi();
         </script>
     	</body>

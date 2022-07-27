@@ -36,7 +36,7 @@
       const [key, value] = field
       data[key] = value
     }
-    //posting massage on panel once Submit
+    //usin globle varable to posting massage on panel once Submit
     tsvscode.postMessage({
       type: "onSubmit",
     })
