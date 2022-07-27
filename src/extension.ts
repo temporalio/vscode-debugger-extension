@@ -1,10 +1,10 @@
 import * as vscode from "vscode"
-import { StartExtension } from "./startExtension"
+import { HistoryDebuggerExtension } from "./startExtension"
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   context.subscriptions.push(
     vscode.commands.registerCommand("temporal-debugger-plugin.start", async () => {
-      await StartExtension.createOrShow(context.extensionUri)
+      await HistoryDebuggerExtension.createOrShow(context.extensionUri)
     }),
   )
 }
