@@ -90,6 +90,7 @@ export class HistoryDebuggerExtension {
       switch (e.type) {
         case "onSubmit":
           await vscode.window.showInformationMessage("Form Submited!")
+          
       }
     })
   }

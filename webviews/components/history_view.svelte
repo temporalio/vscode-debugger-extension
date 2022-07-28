@@ -1,4 +1,6 @@
 <script lang="ts">
+  import file from "./main_view.svelte"
+  const json = JSON.stringify(file);
 </script>
 
 <head>
@@ -8,7 +10,7 @@
 <body>
   <h1>[ ]Workflow Task</h1>
 
-  <p>Event in 1</p>
+  <p>{json}</p>
   <p>Command out 1</p>
   <p>Event in 2</p>
   <p>Command out 2</p>
