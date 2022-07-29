@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { temporal } from "@temporalio/proto"
   import HistoryView from "./history_view.svelte"
   import MainView from "./main_view.svelte"
   import SettingsView from "./settings_view.svelte"
