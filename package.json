@@ -60,8 +60,8 @@
   "scripts": {
     "build.extension": "tsc --build",
     "build.extension.watch": "tsc --build --watch",
-    "build.webview.watch": "rollup -c -w --watch.onEnd 'curl -s localhost:55666'",
-    "build.watch": "concurrently 'npm run build.extension.watch' 'npm run build.webview.watch'",
+    "build.webview.watch": "rollup -c -w --watch.onEnd \"node scripts/reload-webview.mjs\"",
+    "build.watch": "concurrently \"npm run build.extension.watch\" \"npm run build.webview.watch\"",
     "format": "prettier --write .",
     "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check .",
     "start": "ts-node src/replay_history/worker.ts",
