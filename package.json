@@ -72,10 +72,11 @@
     "replayer": "ts-node src/replay_history/replayer.ts"
   },
   "dependencies": {
-    "@temporalio/activity": "^1.0.0-rc.1",
-    "@temporalio/client": "^1.0.0-rc.1",
-    "@temporalio/worker": "^1.0.0-rc.1",
-    "@temporalio/workflow": "^1.0.0-rc.1",
+    "@temporalio/activity": "^1.0.0",
+    "@temporalio/client": "^1.0.0",
+    "@temporalio/proto": "^1.0.0",
+    "@temporalio/worker": "^1.0.0",
+    "@temporalio/workflow": "^1.0.0",
     "nodemon": "^2.0.19",
     "vscode-uri": "^3.0.3"
   }

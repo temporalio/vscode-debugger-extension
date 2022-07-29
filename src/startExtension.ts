@@ -1,5 +1,7 @@
 import * as vscode from "vscode"
 import crypto from "crypto"
+import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
+import { consumeCompletion } from "@temporalio/workflow/lib/internals"
 
 export class HistoryDebuggerExtension {
   /**
@@ -80,6 +82,7 @@ export class HistoryDebuggerExtension {
   }
 
   private _update(): void {
+    console.log('Update called!!!!!!!!!!!!!')
     const webview = this._panel.webview
 
     this._panel.webview.html = this._getHtmlForWebview(webview)
@@ -87,10 +90,13 @@ export class HistoryDebuggerExtension {
     //onsubmit postMessage
 
     webview.onDidReceiveMessage(async (e): Promise<void> => {
+      console.log(e)
       switch (e.type) {
-        case "onSubmit":
-          await vscode.window.showInformationMessage("Form Submited!")
-          
+        case "processHistory": {
+          const history = historyFromJSON(JSON.parse(Buffer.from(e.buffer).toString()))
+          await webview.postMessage({ type: "historyProcessed", history })
+          await vscode.window.showInformationMessage("History sent back")
+        }
       }
     })
   }

@@ -21,11 +21,7 @@
       "type": "extensionHost",
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
-<<<<<<< HEAD
-      "outFiles": ["${workspaceFolder}/out/**/*.js"]
-=======
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
->>>>>>> fe636cadc0cae2a6b90ce5d571b2c74c51ea08fd
     },
     {
       "name": "Extension Tests",
@@ -35,11 +31,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
       ],
-<<<<<<< HEAD
-      "outFiles": ["${workspaceFolder}/out/test/**/*.js"]
-=======
       "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
->>>>>>> fe636cadc0cae2a6b90ce5d571b2c74c51ea08fd
     }
   ]
 }

@@ -1,6 +1,13 @@
 <script lang="ts">
-  export let switchToHistoryView: () => void
+  import type { temporal } from "@temporalio/proto"
+  export let switchToHistoryView: (history: temporal.api.history.v1.IHistory) => void
 
+  window.addEventListener("message", (event) => {
+    console.log("*****")
+    console.log(event.data.history)
+    console.log("*****")
+    if (event.data.type === "historyProcessed") switchToHistoryView(event.data.history)
+  })
   /**
    * Event listener for starting a session from workflow ID
    */
@@ -9,25 +16,19 @@
 
     // TODO: this isn't fully implemented yet
     console.log(data)
-    switchToHistoryView()
+  }
+
+  async function processHistory(fileblob: Blob) {
+    const buffer = await fileblob.arrayBuffer()
+    vscode.postMessage({
+      type: "processHistory",
+      buffer,
+    })
   }
 
   /**
    * Event listener for starting a session from history file
    */
-
-  const bufferToText = (buffer: any) => {
-    const bufferByteLength = buffer.byteLength
-    const bufferUint8Array = new Uint8Array(buffer, 0, bufferByteLength)
-
-    return new TextDecoder().decode(bufferUint8Array)
-  }
-
-  async function getPlanet(fileblob: Blob) {
-    const buffer = await fileblob.arrayBuffer()
-    console.log(bufferToText(buffer))
-  }
-
   function startFromHistoryFile(e: any) {
     const fileinfo = Object.fromEntries(new FormData(e.target)).file
 
@@ -36,16 +37,11 @@
     const fileblob = new Blob([fileinfo], { type: "json" })
     console.log(fileblob)
 
-    getPlanet(fileblob)
+    processHistory(fileblob)
 
     // FormData.prototype.entries
     // TODO: this isn't fully implemented yet
   }
-
-  // TODO: saved this as reference for future work
-  // vscode.postMessage({
-  //   type: "onSubmit",
-  // })
 </script>
 
 <section>
