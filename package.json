@@ -49,21 +49,19 @@
     "prettier": "2.7.1",
     "rollup": "^2.77.0",
     "rollup-plugin-css-only": "^3.1.0",
-    "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-svelte": "^7.1.0",
     "svelte": "^3.49.0",
     "svelte-check": "^2.8.0",
     "svelte-preprocess": "^4.10.7",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
-    "typescript": "^4.7.4",
-    "webpack": "^5.73.0",
-    "webpack-cli": "^4.10.0"
+    "typescript": "^4.7.4"
   },
   "scripts": {
-    "build": "tsc --build",
-    "build.watch": "tsc --build --watch",
-    "watch": "rollup -c -w",
+    "build.extension": "tsc --build",
+    "build.extension.watch": "tsc --build --watch",
+    "build.webview.watch": "rollup -c -w --watch.onEnd 'curl -s localhost:55666'",
+    "build.watch": "concurrently 'npm run build.extension.watch' 'npm run build.webview.watch'",
     "format": "prettier --write .",
     "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check .",
     "start": "ts-node src/replay_history/worker.ts",
@@ -77,6 +75,7 @@
     "@temporalio/proto": "^1.0.0",
     "@temporalio/worker": "^1.0.0",
     "@temporalio/workflow": "^1.0.0",
+    "concurrently": "^7.3.0",
     "nodemon": "^2.0.19",
     "vscode-uri": "^3.0.3"
   }

@@ -1,7 +1,9 @@
 import * as vscode from "vscode"
-import crypto from "crypto"
+import crypto from "node:crypto"
+import fs from "node:fs"
+import path from "node:path"
+import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
-import { consumeCompletion } from "@temporalio/workflow/lib/internals"
 
 export class HistoryDebuggerExtension {
   /**
@@ -65,6 +67,32 @@ export class HistoryDebuggerExtension {
     // Listen for when the panel is disposed
     // This happens when the user closes the panel or when the panel is closed programatically
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
+
+    // TODO: this should only be used for plugin development
+    const server = http.createServer((_req, res) => {
+      // vscode.commands.executeCommand("Developer: Reload webviews")
+      vscode.commands.executeCommand("workbench.action.webview.reloadWebviewAction").then(
+        () => {
+          // TODO: remove this section after history development is done, it doesn't belong in the app
+          const history = historyFromJSON(
+            JSON.parse(
+              fs.readFileSync(
+                path.resolve(__dirname, "../samples/0d693592-0d25-4be9-b8c6-de6a210da5cc_events.json"),
+                "utf8",
+              ),
+            ),
+          )
+          void this._panel.webview.postMessage({ type: "historyProcessed", history })
+        },
+        () => {
+          // ignore
+        },
+      )
+      res.writeHead(200, "OK")
+      res.end()
+    })
+    server.listen(55666, "127.0.0.1")
+    console.log("blaaaaa")
   }
 
   public async dispose(): Promise<void> {
@@ -82,7 +110,6 @@ export class HistoryDebuggerExtension {
   }
 
   private _update(): void {
-    console.log('Update called!!!!!!!!!!!!!')
     const webview = this._panel.webview
 
     this._panel.webview.html = this._getHtmlForWebview(webview)

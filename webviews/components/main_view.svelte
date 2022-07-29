@@ -57,6 +57,4 @@
     <input type="file" required name="file" />
     <input type="submit" value="Start" />
   </form>
-  <hr />
-  <p>Configure server credentials (for downloading histories)</p>
 </section>

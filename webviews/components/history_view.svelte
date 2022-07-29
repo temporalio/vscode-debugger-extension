@@ -10,7 +10,10 @@
 <body>
   <h1>[ ]Workflow Task</h1>
 
-  <p>type: {history.events?.[0].eventType}</p>
+  <p>
+    type: {history.events?.[0].eventType}
+    {history.events?.[0].workflowExecutionStartedEventAttributes?.workflowType?.name}
+  </p>
   <p>Command out 1</p>
   <p>Event in 2</p>
   <p>Command out 2</p>
