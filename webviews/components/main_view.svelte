@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { temporal } from "@temporalio/proto"
-  export let switchToHistoryView: (history: temporal.api.history.v1.IHistory) => void
+  export let switchToHistoryView: (historyBytes: Uint8Array) => void
 
   window.addEventListener("message", (event) => {
     console.log("*****")

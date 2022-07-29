@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { temporal } from "@temporalio/proto"
-  export let history: temporal.api.history.v1.IHistory
+  import { temporal } from "@temporalio/proto"
+  export let historyBytes: Uint8Array
+  const history = temporal.api.history.v1.History.decodeDelimited(historyBytes)
 </script>
 
 <head>

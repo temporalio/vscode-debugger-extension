@@ -1,15 +1,14 @@
 <script lang="ts">
-  import type { temporal } from "@temporalio/proto"
   import HistoryView from "./history_view.svelte"
   import MainView from "./main_view.svelte"
   import SettingsView from "./settings_view.svelte"
 
   type View = "main" | "history" | "settings"
   let currentView: View = "main"
-  let currentHistory: temporal.api.history.v1.IHistory
+  let currentHistory: Uint8Array
 
-  function switchToHistoryView(history: temporal.api.history.v1.IHistory) {
-    currentHistory = history
+  function switchToHistoryView(historyBytes: Uint8Array) {
+    currentHistory = historyBytes
     currentView = "history"
   }
   function switchToSettingsView() {
@@ -28,6 +27,6 @@
   {:else if currentView === "settings"}
     <svelte:component this={SettingsView} />
   {:else}
-    <svelte:component this={HistoryView} history={currentHistory} />
+    <svelte:component this={HistoryView} historyBytes={currentHistory} />
   {/if}
 </main>

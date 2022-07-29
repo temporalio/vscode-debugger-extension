@@ -4,6 +4,7 @@ import fs from "node:fs"
 import path from "node:path"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
+import { temporal } from "@temporalio/proto"
 
 export class HistoryDebuggerExtension {
   /**
@@ -82,7 +83,8 @@ export class HistoryDebuggerExtension {
               ),
             ),
           )
-          void this._panel.webview.postMessage({ type: "historyProcessed", history })
+          const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
+          void this._panel.webview.postMessage({ type: "historyProcessed", history: bytes })
         },
         () => {
           // ignore
@@ -121,7 +123,8 @@ export class HistoryDebuggerExtension {
       switch (e.type) {
         case "processHistory": {
           const history = historyFromJSON(JSON.parse(Buffer.from(e.buffer).toString()))
-          await webview.postMessage({ type: "historyProcessed", history })
+          const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
+          await webview.postMessage({ type: "historyProcessed", history: bytes })
           await vscode.window.showInformationMessage("History sent back")
         }
       }
@@ -132,8 +135,6 @@ export class HistoryDebuggerExtension {
     // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "app.js"))
 
-    const nonce = crypto.randomUUID()
-
     return `<!DOCTYPE html>
     	<html lang="en">
     	<head>
@@ -142,19 +143,17 @@ export class HistoryDebuggerExtension {
     			Use a content security policy to only allow loading images from https or from our extension directory,
     			and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="img-src https: data:; style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}';">
     		<meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <link href="" rel="stylesheet">
                 <link href="" rel="stylesheet">
         
     	</head>
       <body>
-      <script nonce="${nonce}">
-      <!-- rendering commend to main panel as globle varable -->
-          const vscode = acquireVsCodeApi();
-        </script>
+      <script>
+        const vscode = acquireVsCodeApi();
+      </script>
     	</body>
-    	<script src="${scriptUri}" nonce="${nonce}">	</script>
+    	<script src="${scriptUri}"></script>
     	</html>`
   }
 }
