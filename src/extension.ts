@@ -1,10 +1,13 @@
 import * as vscode from "vscode"
-import { HistoryDebuggerExtension } from "./startExtension"
+import { HistoryDebuggerPanel } from "./panel"
+import { Server } from "./server"
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   context.subscriptions.push(
     vscode.commands.registerCommand("temporal-debugger-plugin.start", async () => {
-      await HistoryDebuggerExtension.createOrShow(context.extensionUri)
+      const { url } = await Server.create()
+      console.log(`Server listening on ${url}`)
+      HistoryDebuggerPanel.install(context.extensionUri, url).show()
     }),
   )
 }

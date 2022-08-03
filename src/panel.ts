@@ -1,36 +1,49 @@
 import * as vscode from "vscode"
-import crypto from "node:crypto"
 import fs from "node:fs"
 import path from "node:path"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
 
-export class HistoryDebuggerExtension {
+export class HistoryDebuggerPanel {
+  protected static _instance?: HistoryDebuggerPanel
+
+  static install(extensionUri: vscode.Uri, httpServerUrl: string): HistoryDebuggerPanel {
+    if (this._instance === undefined) {
+      this._instance = new this(extensionUri, httpServerUrl)
+    }
+    return this._instance
+  }
+
+  static get instance(): HistoryDebuggerPanel {
+    if (this._instance === undefined) {
+      throw new ReferenceError("HistoryDebuggerPanel not installed")
+    }
+    return this._instance
+  }
+
   /**
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
-  public static currentPanel: HistoryDebuggerExtension | undefined
+  public currentHistoryBuffer?: Buffer
 
   public static readonly viewType = "temporal-debugger-plugin"
 
-  private readonly _panel: vscode.WebviewPanel
-  private readonly _extensionUri: vscode.Uri
-  private _disposables: vscode.Disposable[] = []
+  private readonly panel: vscode.WebviewPanel
+  private disposables: vscode.Disposable[] = []
 
-  public static async createOrShow(extensionUri: vscode.Uri): Promise<void> {
+  show(): void {
+    const column = vscode.window.activeTextEditor?.viewColumn
+    this.panel.reveal(column)
+    this.update()
+  }
+
+  //@typescript-eslint/no-floating-promises
+  private constructor(protected readonly extensionUri: vscode.Uri, protected readonly httpServerUrl: string) {
     const column = vscode.window.activeTextEditor?.viewColumn
 
-    // If we already have a panel, show it.
-    if (HistoryDebuggerExtension.currentPanel) {
-      HistoryDebuggerExtension.currentPanel._panel.reveal(column)
-      HistoryDebuggerExtension.currentPanel._update()
-      return
-    }
-
-    // Otherwise, create a new panel.
-    const panel = vscode.window.createWebviewPanel(
-      HistoryDebuggerExtension.viewType,
+    this.panel = vscode.window.createWebviewPanel(
+      HistoryDebuggerPanel.viewType,
       "VSinder",
       column || vscode.ViewColumn.One,
       {
@@ -45,29 +58,12 @@ export class HistoryDebuggerExtension {
       },
     )
 
-    HistoryDebuggerExtension.currentPanel = new HistoryDebuggerExtension(panel, extensionUri)
-  }
-
-  public static async kill(): Promise<void> {
-    await HistoryDebuggerExtension.currentPanel?.dispose()
-    HistoryDebuggerExtension.currentPanel = undefined
-  }
-
-  public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri): void {
-    HistoryDebuggerExtension.currentPanel = new HistoryDebuggerExtension(panel, extensionUri)
-  }
-
-  //@typescript-eslint/no-floating-promises
-  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-    this._panel = panel
-    this._extensionUri = extensionUri
-
     // Set the webview's initial html content
-    this._update()
+    this.update()
 
     // Listen for when the panel is disposed
     // This happens when the user closes the panel or when the panel is closed programatically
-    this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
+    this.panel.onDidDispose(() => this.dispose(), null, this.disposables)
 
     // TODO: this should only be used for plugin development
     const server = http.createServer((_req, res) => {
@@ -84,7 +80,7 @@ export class HistoryDebuggerExtension {
             ),
           )
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
-          void this._panel.webview.postMessage({ type: "historyProcessed", history: bytes })
+          void this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
         },
         () => {
           // ignore
@@ -98,23 +94,23 @@ export class HistoryDebuggerExtension {
   }
 
   public async dispose(): Promise<void> {
-    HistoryDebuggerExtension.currentPanel = undefined
-
     // Clean up our resources
-    this._panel.dispose()
+    this.panel.dispose()
 
-    while (this._disposables.length) {
-      const x = this._disposables.pop()
+    while (this.disposables.length) {
+      const x = this.disposables.pop()
       if (x) {
         await x.dispose()
       }
     }
+
+    delete HistoryDebuggerPanel._instance
   }
 
-  private _update(): void {
-    const webview = this._panel.webview
+  private update(): void {
+    const webview = this.panel.webview
 
-    this._panel.webview.html = this._getHtmlForWebview(webview)
+    this.panel.webview.html = this.getHtmlForWebview(webview)
 
     //onsubmit postMessage
 
@@ -122,18 +118,21 @@ export class HistoryDebuggerExtension {
       console.log(e)
       switch (e.type) {
         case "processHistory": {
-          const history = historyFromJSON(JSON.parse(Buffer.from(e.buffer).toString()))
+          const buffer = Buffer.from(e.buffer)
+          const history = historyFromJSON(JSON.parse(buffer.toString()))
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
+          this.currentHistoryBuffer = buffer
           await webview.postMessage({ type: "historyProcessed", history: bytes })
+          const config = { env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl } }
           await vscode.window.showInformationMessage("History sent back")
         }
       }
     })
   }
 
-  private _getHtmlForWebview(webview: vscode.Webview): string {
+  private getHtmlForWebview(webview: vscode.Webview): string {
     // And the uri we use to load this script in the webview
-    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "app.js"))
+    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "out", "compiled", "app.js"))
 
     return `<!DOCTYPE html>
     	<html lang="en">
