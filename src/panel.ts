@@ -4,6 +4,7 @@ import path from "node:path"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
+import { Uri, workspace } from "vscode"
 
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
@@ -123,8 +124,21 @@ export class HistoryDebuggerPanel {
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
           this.currentHistoryBuffer = buffer
           await webview.postMessage({ type: "historyProcessed", history: bytes })
-          const config = { env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl } }
           await vscode.window.showInformationMessage("History sent back")
+          const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(path.join(__dirname, "replay_history")))
+          await vscode.debug.startDebugging(workspaceFolder, {
+            name: "Launch Program",
+            type: "node",
+            request: "launch",
+            runtimeExecutable: "node",
+            runtimeArgs: ["--nolazy", "-r", "ts-node/register/transpile-only"],
+            cwd: "${workspaceRoot}",
+            skipFiles: ["<node_internals>/**"],
+            args: ["replayer.ts"],
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl },
+            internalConsoleOptions: "openOnSessionStart",
+          })
         }
       }
     })

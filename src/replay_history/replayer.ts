@@ -1,20 +1,17 @@
 import { Worker } from "@temporalio/worker"
 import { Connection } from "@temporalio/client"
+import { temporal } from "@temporalio/proto"
+
+// export let historyBytes: Uint8Array
+// const historyData = temporal.api.history.v1.History.decodeDelimited(historyBytes)
 
 export async function run(): Promise<void> {
-  // @@@SNIPSTART typescript-history-get-workflowhistory
-  const conn = await Connection.connect(/* { address: 'temporal.prod.company.com' } */)
-  const { history } = await conn.workflowService.getWorkflowExecutionHistory({
-    namespace: "default",
-    execution: {
-      workflowId: "calc",
-    },
-  })
-  // @@@SNIPEND
+  console.log(process.env.TEMPORAL_DEBUGGER_PLUGIN_URL)
+
+  const history = undefined
   if (!history) {
     throw new Error("Empty history")
   }
-  // @@@SNIPSTART typescript-history-get-workflowhistory
   await Worker.runReplayHistory(
     {
       workflowsPath: require.resolve("./workflows"),
@@ -22,7 +19,6 @@ export async function run(): Promise<void> {
     },
     history,
   )
-  // @@@SNIPEND
 }
 
 run().catch((err) => {
