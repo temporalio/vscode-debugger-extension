@@ -1,27 +1,28 @@
 <script lang="ts">
   import type { temporal } from "@temporalio/proto"
-  export let switchToHistoryView: (historyBytes: Uint8Array) => void
 
-  window.addEventListener("message", (event) => {
-    console.log("*****")
-    console.log(event.data.history)
-    console.log("*****")
-    if (event.data.type === "historyProcessed") switchToHistoryView(event.data.history)
-  })
   /**
    * Event listener for starting a session from workflow ID
    */
-  function startFromWorkflowId(e: any) {
+  function startFromWorkflowId(e: Event) {
+    if (!(e.target instanceof HTMLFormElement)) {
+      throw new TypeError("Expected form element")
+    }
     const data = Object.fromEntries(new FormData(e.target))
 
-    // TODO: this isn't fully implemented yet
-    console.log(data)
+    // TODO: implement this
+    vscode.postMessage({
+      type: "startFromId",
+      ...data,
+    })
   }
 
   async function processHistory(fileblob: Blob) {
+    // TODO: handle errors
     const buffer = await fileblob.arrayBuffer()
+    // TODO: show loading indicator, set timeout for this operation
     vscode.postMessage({
-      type: "processHistory",
+      type: "startFromHistory",
       buffer,
     })
   }
@@ -29,18 +30,14 @@
   /**
    * Event listener for starting a session from history file
    */
-  function startFromHistoryFile(e: any) {
+  function startFromHistoryFile(e: Event) {
+    if (!(e.target instanceof HTMLFormElement)) {
+      throw new TypeError("Expected form element")
+    }
     const fileinfo = Object.fromEntries(new FormData(e.target)).file
 
-    console.log(fileinfo)
-
-    const fileblob = new Blob([fileinfo], { type: "json" })
-    console.log(fileblob)
-
+    const fileblob = new Blob([fileinfo])
     processHistory(fileblob)
-
-    // FormData.prototype.entries
-    // TODO: this isn't fully implemented yet
   }
 </script>
 

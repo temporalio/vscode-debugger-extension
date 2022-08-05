@@ -38,7 +38,6 @@ export class HistoryDebuggerPanel {
     this.update()
   }
 
-  //@typescript-eslint/no-floating-promises
   private constructor(protected readonly extensionUri: vscode.Uri, protected readonly httpServerUrl: string) {
     const column = vscode.window.activeTextEditor?.viewColumn
 
@@ -90,7 +89,6 @@ export class HistoryDebuggerPanel {
       res.end()
     })
     server.listen(55666, "127.0.0.1")
-    console.log("blaaaaa")
   }
 
   public async dispose(): Promise<void> {
@@ -112,20 +110,25 @@ export class HistoryDebuggerPanel {
 
     this.panel.webview.html = this.getHtmlForWebview(webview)
 
-    //onsubmit postMessage
-
     webview.onDidReceiveMessage(async (e): Promise<void> => {
-      console.log(e)
+      // TODO: error handling
       switch (e.type) {
-        case "processHistory": {
+        case "startFromId": {
+          console.log()
+          await vscode.window.showInformationMessage("Starting debug session")
+          break
+        }
+        case "startFromHistory": {
           const buffer = Buffer.from(e.buffer)
+          // TODO: support binary history too
           const history = historyFromJSON(JSON.parse(buffer.toString()))
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
           this.currentHistoryBuffer = buffer
           await webview.postMessage({ type: "historyProcessed", history: bytes })
           // eslint-disable-next-line  @typescript-eslint/naming-convention
           const _config = { env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl } }
-          await vscode.window.showInformationMessage("History sent back")
+          await vscode.window.showInformationMessage("Starting debug session")
+          break
         }
       }
     })
@@ -135,25 +138,26 @@ export class HistoryDebuggerPanel {
     // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "out", "compiled", "app.js"))
 
+    // TODO: nonce was removed here because protobufjs uses code generation, see if we can bring it back
     return `<!DOCTYPE html>
-    	<html lang="en">
-    	<head>
-    		<meta charset="UTF-8">
-    		<!--
-    			Use a content security policy to only allow loading images from https or from our extension directory,
-    			and only allow scripts that have a specific nonce.
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <!--
+          Use a content security policy to only allow loading images from https or from our extension directory,
+          and only allow scripts that have a specific nonce.
         -->
-    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <link href="" rel="stylesheet">
                 <link href="" rel="stylesheet">
-        
-    	</head>
+
+      </head>
       <body>
       <script>
         const vscode = acquireVsCodeApi();
       </script>
-    	</body>
-    	<script src="${scriptUri}"></script>
-    	</html>`
+      </body>
+      <script src="${scriptUri}"></script>
+      </html>`
   }
 }

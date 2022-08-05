@@ -42,18 +42,6 @@ export class Server {
 
   constructor(protected readonly server: http.Server) {}
 
-  get port(): number {
-    const addr = this.server.address()
-    mustBeAddrInfo(addr)
-    return addr.port
-  }
-
-  get address(): string {
-    const addr = this.server.address()
-    mustBeAddrInfo(addr)
-    return addr.address
-  }
-
   get url(): string {
     const addr = this.server.address()
     mustBeAddrInfo(addr)

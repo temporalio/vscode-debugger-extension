@@ -6,8 +6,6 @@ import typescript from "@rollup/plugin-typescript"
 import json from "@rollup/plugin-json"
 import path from "path"
 
-const production = !process.env.ROLLUP_WATCH
-
 export default {
   input: path.join(__dirname, "webviews/pages/app.ts"),
   output: {
@@ -18,15 +16,8 @@ export default {
   },
   plugins: [
     svelte({
-      // enable run-time checks when not in production
-      dev: !production,
-
-      css: (css) => {
-        css.write("app.css")
-      },
       preprocess: sveltePreprocess(),
     }),
-
     resolve({
       browser: true,
       dedupe: ["svelte"],
