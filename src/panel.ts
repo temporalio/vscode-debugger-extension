@@ -123,7 +123,8 @@ export class HistoryDebuggerPanel {
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
           this.currentHistoryBuffer = buffer
           await webview.postMessage({ type: "historyProcessed", history: bytes })
-          const config = { env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl } }
+          // eslint-disable-next-line  @typescript-eslint/naming-convention
+          const _config = { env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl } }
           await vscode.window.showInformationMessage("History sent back")
         }
       }
