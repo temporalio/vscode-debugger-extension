@@ -1,31 +1,44 @@
 <script lang="ts">
-  export let switchToHistoryView: () => void
+  import type { temporal } from "@temporalio/proto"
 
   /**
    * Event listener for starting a session from workflow ID
    */
-  function startFromWorkflowId(e: any) {
+  function startFromWorkflowId(e: Event) {
+    if (!(e.target instanceof HTMLFormElement)) {
+      throw new TypeError("Expected form element")
+    }
     const data = Object.fromEntries(new FormData(e.target))
 
-    // TODO: this isn't fully implemented yet
-    console.log(data)
-    switchToHistoryView()
+    // TODO: implement this
+    vscode.postMessage({
+      type: "startFromId",
+      ...data,
+    })
+  }
+
+  async function processHistory(fileblob: Blob) {
+    // TODO: handle errors
+    const buffer = await fileblob.arrayBuffer()
+    // TODO: show loading indicator, set timeout for this operation
+    vscode.postMessage({
+      type: "startFromHistory",
+      buffer,
+    })
   }
 
   /**
    * Event listener for starting a session from history file
    */
-  function startFromHistoryFile(e: any) {
-    const fileinfo = Object.fromEntries(new FormData(e.target))
+  function startFromHistoryFile(e: Event) {
+    if (!(e.target instanceof HTMLFormElement)) {
+      throw new TypeError("Expected form element")
+    }
+    const fileinfo = Object.fromEntries(new FormData(e.target)).file
 
-    // TODO: this isn't fully implemented yet
-    console.log(fileinfo)
+    const fileblob = new Blob([fileinfo])
+    processHistory(fileblob)
   }
-
-  // TODO: saved this as reference for future work
-  // vscode.postMessage({
-  //   type: "onSubmit",
-  // })
 </script>
 
 <section>
@@ -41,6 +54,4 @@
     <input type="file" required name="file" />
     <input type="submit" value="Start" />
   </form>
-  <hr />
-  <p>Configure server credentials (for downloading histories)</p>
 </section>
