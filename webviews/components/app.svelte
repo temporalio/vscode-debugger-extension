@@ -12,7 +12,6 @@
     switch (event.data.type) {
       case "historyProcessed":
         currentHistory = temporal.api.history.v1.History.decodeDelimited(event.data.history)
-        console.log(currentHistory)
         switchToHistoryView()
         break
       default:
