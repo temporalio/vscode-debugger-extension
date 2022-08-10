@@ -1,19 +1,8 @@
 import { Worker } from "@temporalio/worker"
-import { Connection } from "@temporalio/client"
 
 export async function run(): Promise<void> {
-  // @@@SNIPSTART typescript-history-get-workflowhistory
-  const conn = await Connection.connect(/* { address: 'temporal.prod.company.com' } */)
-  const { history } = await conn.workflowService.getWorkflowExecutionHistory({
-    namespace: "default",
-    execution: {
-      workflowId: "calc",
-    },
-  })
-  // @@@SNIPEND
-  if (!history) {
-    throw new Error("Empty history")
-  }
+  const history = undefined
+  
   // @@@SNIPSTART typescript-history-get-workflowhistory
   await Worker.runReplayHistory(
     {

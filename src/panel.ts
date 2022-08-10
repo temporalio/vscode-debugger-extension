@@ -4,6 +4,9 @@ import path from "node:path"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
+import { listenerCount } from "node:process"
+import { Connection } from "@temporalio/client"
+
 
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
@@ -114,7 +117,25 @@ export class HistoryDebuggerPanel {
       // TODO: error handling
       switch (e.type) {
         case "startFromId": {
-          console.log()
+          const conn = await Connection.connect(/* { address: 'temporal.prod.company.com' } */)
+          const { history } = await conn.workflowService.getWorkflowExecutionHistory({
+            namespace: "default",
+            execution: {
+            workflowId: e.workID,
+            runId : e.runID
+          },
+        })
+        if (!history) {
+          throw new Error("Empty history")
+        }
+          // Need to be buffered?
+          // const buffer = Buffer.from(e.buffer)
+          // const historyFile = historyFromJSON(JSON.parse(history.toString()))
+          const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
+          // this.currentHistoryBuffer = buffer
+          await webview.postMessage({ type: "historyProcessed", history: bytes })
+          // TODO: Send history file to local server
+
           await vscode.window.showInformationMessage("Starting debug session")
           break
         }
@@ -127,6 +148,7 @@ export class HistoryDebuggerPanel {
           await webview.postMessage({ type: "historyProcessed", history: bytes })
           // eslint-disable-next-line  @typescript-eslint/naming-convention
           const _config = { env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl } }
+          // TODO: Send history file to local server
           await vscode.window.showInformationMessage("Starting debug session")
           break
         }

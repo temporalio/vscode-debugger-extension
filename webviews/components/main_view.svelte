@@ -9,11 +9,14 @@
       throw new TypeError("Expected form element")
     }
     const data = Object.fromEntries(new FormData(e.target))
+    const workID = data.workflowId
+    const runID = data.runId
 
     // TODO: implement this
     vscode.postMessage({
       type: "startFromId",
-      ...data,
+      workID,
+      runID
     })
   }
 
