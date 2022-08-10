@@ -4,9 +4,8 @@ import path from "node:path"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
-import { listenerCount } from "node:process"
+//import { listenerCount } from "node:process"
 import { Connection } from "@temporalio/client"
-
 
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
@@ -121,13 +120,13 @@ export class HistoryDebuggerPanel {
           const { history } = await conn.workflowService.getWorkflowExecutionHistory({
             namespace: "default",
             execution: {
-            workflowId: e.workID,
-            runId : e.runID
-          },
-        })
-        if (!history) {
-          throw new Error("Empty history")
-        }
+              workflowId: e.workID,
+              runId: e.runID,
+            },
+          })
+          if (!history) {
+            throw new Error("Empty history")
+          }
           // Need to be buffered?
           // const buffer = Buffer.from(e.buffer)
           // const historyFile = historyFromJSON(JSON.parse(history.toString()))
