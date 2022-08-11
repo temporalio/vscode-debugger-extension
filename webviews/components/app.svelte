@@ -3,18 +3,22 @@
   import MainView from "./main_view.svelte"
   import SettingsView from "./settings_view.svelte"
   import { temporal } from "@temporalio/proto"
+  
 
   type View = "main" | "history" | "settings"
   let currentView: View = "main"
   let currentHistory: temporal.api.history.v1.IHistory
 
   window.addEventListener("message", (event) => {
+    // console.log(event.data.type)
     switch (event.data.type) {
       case "historyProcessed":
         currentHistory = temporal.api.history.v1.History.decodeDelimited(event.data.history)
+        // console.log(currentHistory)
         switchToHistoryView()
         break
       default:
+        
       // Notify unexpected error
     }
   })

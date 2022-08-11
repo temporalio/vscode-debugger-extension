@@ -71,12 +71,7 @@ export class HistoryDebuggerPanel {
         () => {
           // TODO: remove this section after history development is done, it doesn't belong in the app
           const history = historyFromJSON(
-            JSON.parse(
-              fs.readFileSync(
-                path.resolve(__dirname, "../samples/0d693592-0d25-4be9-b8c6-de6a210da5cc_events.json"),
-                "utf8",
-              ),
-            ),
+            JSON.parse(fs.readFileSync(path.resolve(__dirname, "../samples/calc.json"), "utf8")),
           )
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
           void this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
@@ -124,6 +119,7 @@ export class HistoryDebuggerPanel {
           const history = historyFromJSON(JSON.parse(buffer.toString()))
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
           this.currentHistoryBuffer = buffer
+          // console.log(this.currentHistoryBuffer)
           await webview.postMessage({ type: "historyProcessed", history: bytes })
           // eslint-disable-next-line  @typescript-eslint/naming-convention
           const _config = { env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl } }
@@ -137,6 +133,7 @@ export class HistoryDebuggerPanel {
   private getHtmlForWebview(webview: vscode.Webview): string {
     // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "out", "compiled", "app.js"))
+    const cssUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "media", "history.css"))
 
     // TODO: nonce was removed here because protobufjs uses code generation, see if we can bring it back
     return `<!DOCTYPE html>
@@ -148,7 +145,7 @@ export class HistoryDebuggerPanel {
           and only allow scripts that have a specific nonce.
         -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <link href="" rel="stylesheet">
+                <link href="${cssUri}" rel="stylesheet">
                 <link href="" rel="stylesheet">
 
       </head>
