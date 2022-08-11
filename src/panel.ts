@@ -4,7 +4,6 @@ import path from "node:path"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
-//import { listenerCount } from "node:process"
 import { Connection } from "@temporalio/client"
 
 export class HistoryDebuggerPanel {
@@ -116,25 +115,23 @@ export class HistoryDebuggerPanel {
       // TODO: error handling
       switch (e.type) {
         case "startFromId": {
+          // TODO: Implement history pagination
           const conn = await Connection.connect(/* { address: 'temporal.prod.company.com' } */)
           const { history } = await conn.workflowService.getWorkflowExecutionHistory({
             namespace: "default",
             execution: {
-              workflowId: e.workID,
-              runId: e.runID,
+              workflowId: e.workflowId,
+              runId: e.runId,
             },
           })
           if (!history) {
-            throw new Error("Empty history")
+            await vscode.window.showErrorMessage("Empty history")
+            break
           }
-          // Need to be buffered?
-          // const buffer = Buffer.from(e.buffer)
-          // const historyFile = historyFromJSON(JSON.parse(history.toString()))
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
-          // this.currentHistoryBuffer = buffer
+          this.currentHistoryBuffer = Buffer.from(bytes)
           await webview.postMessage({ type: "historyProcessed", history: bytes })
           // TODO: Send history file to local server
-
           await vscode.window.showInformationMessage("Starting debug session")
           break
         }
