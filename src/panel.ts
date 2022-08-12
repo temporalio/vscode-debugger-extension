@@ -147,9 +147,9 @@ export class HistoryDebuggerPanel {
     })
   }
 
-  private async handleStartProject(bytes: Uint8Array): Promise<void> {   
-    // eslint-disable-next-line  @typescript-eslint/naming-convention 
-    const _config = { env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl }}
+  private async handleStartProject(bytes: Uint8Array): Promise<void> {
+    // eslint-disable-next-line  @typescript-eslint/naming-convention
+    const _config = { env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl } }
     await this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
     await vscode.window.showInformationMessage("Starting debug session")
     const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(path.join(__dirname, "replay_history")))
@@ -163,7 +163,7 @@ export class HistoryDebuggerPanel {
       skipFiles: ["<node_internals>/**"],
       args: ["replayer.ts"],
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      env: {TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl },
+      env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl },
       internalConsoleOptions: "openOnSessionStart",
     })
   }
