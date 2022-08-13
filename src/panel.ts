@@ -27,7 +27,7 @@ export class HistoryDebuggerPanel {
   /**
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
-  public currentHistoryBuffer?: Buffer
+  public currentHistoryBuffer?: Uint8Array
 
   public static readonly viewType = "temporal-debugger-plugin"
 
@@ -130,7 +130,7 @@ export class HistoryDebuggerPanel {
             break
           }
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
-          this.currentHistoryBuffer = Buffer.from(bytes)
+          this.currentHistoryBuffer = bytes
           await this.handleStartProject(bytes)
           break
         }
@@ -139,7 +139,7 @@ export class HistoryDebuggerPanel {
           // TODO: support binary history too
           const history = historyFromJSON(JSON.parse(buffer.toString()))
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
-          this.currentHistoryBuffer = Buffer.from(bytes)
+          this.currentHistoryBuffer = bytes
           await this.handleStartProject(bytes)
           break
         }
@@ -148,10 +148,6 @@ export class HistoryDebuggerPanel {
   }
 
   private async handleStartProject(bytes: Uint8Array): Promise<void> {
-    // eslint-disable-next-line  @typescript-eslint/naming-convention
-    const _config = { env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl } }
-    await this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
-    await vscode.window.showInformationMessage("Starting debug session")
     const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(path.join(__dirname, "replay_history")))
     await vscode.debug.startDebugging(workspaceFolder, {
       name: "Launch Program",
@@ -166,6 +162,8 @@ export class HistoryDebuggerPanel {
       env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl },
       internalConsoleOptions: "openOnSessionStart",
     })
+    await this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
+    await vscode.window.showInformationMessage("Starting debug session")
   }
 
   private getHtmlForWebview(webview: vscode.Webview): string {
