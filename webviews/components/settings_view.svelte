@@ -7,7 +7,7 @@
 
   function saveSettings(e: any) {
     const data = Object.fromEntries(new FormData(e.target))
-    vscode.postMessage({ type: "secretStorage", ...data })
+
     // TODO: this isn't fully implemented yet
     // console.log(data)
   }

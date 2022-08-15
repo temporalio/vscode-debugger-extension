@@ -128,15 +128,6 @@ export class HistoryDebuggerPanel {
           await vscode.window.showInformationMessage("Starting debug session")
           break
         }
-        case "secretStorage": {
-          await vscode.window.showInformationMessage("Starting debug session")
-          let secretStorage: vscode.SecretStorage
-          console.log(e)
-          for(let  key in e){
-            // secretStorage.store(key,e[key])
-            console.log(e[key])
-          }
-        }
       }
     })
   }
