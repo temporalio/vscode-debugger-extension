@@ -8,6 +8,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       const { url } = await Server.create()
       console.log(`Server listening on ${url}`)
       HistoryDebuggerPanel.install(context.extensionUri, url).show()
+      context.secrets
     }),
   )
 }

@@ -3,7 +3,6 @@
   import MainView from "./main_view.svelte"
   import SettingsView from "./settings_view.svelte"
   import { temporal } from "@temporalio/proto"
-  
 
   type View = "main" | "history" | "settings"
   let currentView: View = "main"
@@ -18,7 +17,7 @@
         switchToHistoryView()
         break
       default:
-        
+
       // Notify unexpected error
     }
   })
