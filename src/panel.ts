@@ -4,6 +4,8 @@ import path from "node:path"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
+import { Connection } from "@temporalio/client"
+import { Uri, workspace } from "vscode"
 
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
@@ -25,7 +27,7 @@ export class HistoryDebuggerPanel {
   /**
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
-  public currentHistoryBuffer?: Buffer
+  public currentHistoryBuffer?: Uint8Array
 
   public static readonly viewType = "temporal-debugger-plugin"
 
@@ -111,8 +113,22 @@ export class HistoryDebuggerPanel {
       // TODO: error handling
       switch (e.type) {
         case "startFromId": {
-          console.log()
-          await vscode.window.showInformationMessage("Starting debug session")
+          // TODO: Implement history pagination
+          const conn = await Connection.connect(/* { address: 'temporal.prod.company.com' } */)
+          const { history } = await conn.workflowService.getWorkflowExecutionHistory({
+            namespace: "default",
+            execution: {
+              workflowId: e.workflowId,
+              runId: e.runId,
+            },
+          })
+          if (!history) {
+            await vscode.window.showErrorMessage("Empty history")
+            break
+          }
+          const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
+          this.currentHistoryBuffer = bytes
+          await this.handleStartProject(bytes)
           break
         }
         case "startFromHistory": {
@@ -130,6 +146,25 @@ export class HistoryDebuggerPanel {
         }
       }
     })
+  }
+
+  private async handleStartProject(bytes: Uint8Array): Promise<void> {
+    const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(path.join(__dirname, "replay_history")))
+    await vscode.debug.startDebugging(workspaceFolder, {
+      name: "Launch Program",
+      type: "node",
+      request: "launch",
+      runtimeExecutable: "node",
+      runtimeArgs: ["--nolazy", "-r", "ts-node/register/transpile-only"],
+      cwd: "${workspaceRoot}",
+      skipFiles: ["<node_internals>/**"],
+      args: ["replayer.ts"],
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl },
+      internalConsoleOptions: "openOnSessionStart",
+    })
+    await this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
+    await vscode.window.showInformationMessage("Starting debug session")
   }
 
   private getHtmlForWebview(webview: vscode.Webview): string {
