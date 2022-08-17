@@ -144,7 +144,7 @@ export class HistoryDebuggerPanel {
           await vscode.window.showInformationMessage("Starting debug session")
           const secretStorage = AuthSettings.instance
 
-          for (let key in e) {
+          for (const key in e) {
             await secretStorage.storeAuthData(key, e[key])
             console.log(await secretStorage.getAuthData(key))
           }
