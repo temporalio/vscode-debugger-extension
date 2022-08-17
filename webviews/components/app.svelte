@@ -11,7 +11,7 @@
   window.addEventListener("message", (event) => {
     switch (event.data.type) {
       case "historyProcessed":
-        currentHistory = temporal.api.history.v1.History.decodeDelimited(event.data.history)
+        currentHistory = temporal.api.history.v1.History.decode(event.data.history)
         switchToHistoryView()
         break
       default:
