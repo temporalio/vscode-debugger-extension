@@ -1,12 +1,15 @@
 <script lang="ts">
+  import App from "./app.svelte"
+
   /**
    * Event listener for saving the settings
    */
+
   function saveSettings(e: any) {
     const data = Object.fromEntries(new FormData(e.target))
 
     // TODO: this isn't fully implemented yet
-    console.log(data)
+    // console.log(data)
   }
 </script>
 

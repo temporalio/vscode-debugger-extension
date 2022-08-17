@@ -74,10 +74,7 @@ export class HistoryDebuggerPanel {
           // TODO: remove this section after history development is done, it doesn't belong in the app
           const history = historyFromJSON(
             JSON.parse(
-              fs.readFileSync(
-                path.resolve(__dirname, "../samples/0d693592-0d25-4be9-b8c6-de6a210da5cc_events.json"),
-                "utf8",
-              ),
+              fs.readFileSync(path.resolve(__dirname, "../samples/multiple-signals-termined-after-days.json"), "utf8"),
             ),
           )
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
@@ -168,6 +165,7 @@ export class HistoryDebuggerPanel {
   private getHtmlForWebview(webview: vscode.Webview): string {
     // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "out", "compiled", "app.js"))
+    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "out", "compiled", "app.css"))
 
     // TODO: nonce was removed here because protobufjs uses code generation, see if we can bring it back
     return `<!DOCTYPE html>
@@ -179,8 +177,7 @@ export class HistoryDebuggerPanel {
           and only allow scripts that have a specific nonce.
         -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <link href="" rel="stylesheet">
-                <link href="" rel="stylesheet">
+                <link href="${styleUri}" rel="stylesheet">
 
       </head>
       <body>

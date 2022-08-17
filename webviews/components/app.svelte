@@ -15,6 +15,7 @@
         switchToHistoryView()
         break
       default:
+
       // Notify unexpected error
     }
   })
