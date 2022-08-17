@@ -127,7 +127,6 @@ export class HistoryDebuggerPanel {
             break
           }
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
-          this.currentHistoryBuffer = bytes
           await this.handleStartProject(bytes)
           break
         }
@@ -144,6 +143,7 @@ export class HistoryDebuggerPanel {
   }
 
   private async handleStartProject(bytes: Uint8Array): Promise<void> {
+    this.currentHistoryBuffer = bytes
     const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(path.join(__dirname, "replay_history")))
     await vscode.debug.startDebugging(workspaceFolder, {
       name: "Launch Program",
