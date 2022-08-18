@@ -75,7 +75,10 @@ export class HistoryDebuggerPanel {
           // TODO: remove this section after history development is done, it doesn't belong in the app
           const history = historyFromJSON(
             JSON.parse(
-              fs.readFileSync(path.resolve(__dirname, "../samples/multiple-signals-termined-after-days.json"), "utf8"),
+              fs.readFileSync(
+                path.resolve(__dirname, "../samples/multiple-signals-terminated-after-days.json"),
+                "utf8",
+              ),
             ),
           )
           const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
