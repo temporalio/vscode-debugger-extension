@@ -9,7 +9,8 @@ export const signals = {
   inverseFraction: wf.defineSignal<[]>("inverseFraction"),
 }
 
-export async function calculator(): Promise<void> {
+export async function example(): Promise<void> {
+  debugger
   let value = 0
   wf.setHandler(signals.add, (x: number) => {
     value += x

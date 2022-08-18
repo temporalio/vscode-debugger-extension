@@ -1,8 +1,16 @@
 <script lang="ts">
+  import { onDestroy } from "svelte"
   import humanizeDuration from "humanize-duration"
   import { temporal } from "@temporalio/proto"
   import { type History, EventType, type Timestamp, type CategorizedEvent, type WorkflowTask } from "../lib"
   import BreakpointButton from "./breakpoint_button.svelte"
+
+  export let eventEmitter: EventTarget
+  const listener = (e) => {
+    currentWorkflowTaskStartedEventId = (e as CustomEvent<number>).detail
+  }
+  eventEmitter.addEventListener("currentWFTUpdated", listener, { once: true })
+  onDestroy(() => eventEmitter.removeEventListener("currentWFTUpdated", listener))
 
   export let history: History
 
@@ -17,7 +25,8 @@
 
   const firstWFTStartedEvent = history.events?.find((e) => e.workflowTaskStartedEventAttributes)
   // There might not be a WFT started event in the history (no task was ever processed)
-  let currentWorkflowTaskStartedEventId = firstWFTStartedEvent ? firstWFTStartedEvent.eventId : -1
+  // TODO: eventId should be Long, not number, will be fixed in SDK 1.0.0
+  let currentWorkflowTaskStartedEventId = (firstWFTStartedEvent?.eventId as unknown as number) ?? -1
 
   type Category =
     | "WFT_COMPLETED"

@@ -14,7 +14,8 @@
       "cwd": "${workspaceRoot}/src",
       "skipFiles": ["<node_internals>/**"],
       "args": ["${file}"],
-      "internalConsoleOptions": "openOnSessionStart"
+      "internalConsoleOptions": "openOnSessionStart",
+      "pauseForSourceMap": true,
     },
     {
       "name": "Run Extension",

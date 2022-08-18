@@ -14,6 +14,9 @@
       case "settingsLoaded":
         eventEmitter.dispatchEvent(new CustomEvent("settingsLoaded", { detail: event.data.settings }))
         break
+      case "currentWFTUpdated":
+        eventEmitter.dispatchEvent(new CustomEvent("currentWFTUpdated", { detail: event.data.eventId }))
+        break
       case "historyProcessed":
         currentHistory = temporal.api.history.v1.History.decode(event.data.history)
         switchToHistoryView()
@@ -49,6 +52,6 @@
   {:else if currentView === "settings"}
     <SettingsView {eventEmitter} />
   {:else}
-    <HistoryView history={currentHistory} />
+    <HistoryView history={currentHistory} {eventEmitter} />
   {/if}
 </main>

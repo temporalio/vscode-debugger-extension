@@ -46,9 +46,6 @@ export class HistoryDebuggerPanel {
     return this._instance
   }
 
-  /**
-   * Track the currently panel. Only allow a single panel to exist at a time.
-   */
   public currentHistoryBuffer?: Buffer
 
   public static readonly viewType = "temporal-debugger-plugin"
@@ -57,9 +54,11 @@ export class HistoryDebuggerPanel {
   private disposables: vscode.Disposable[] = []
 
   show(): void {
-    const column = vscode.window.activeTextEditor?.viewColumn
-    this.panel.reveal(column)
-    this.update()
+    this.panel.reveal(vscode.ViewColumn.Beside)
+  }
+
+  async updateCurrentWFTStarted(eventId: number): Promise<void> {
+    await this.panel.webview.postMessage({ type: "currentWFTUpdated", eventId })
   }
 
   private constructor(
@@ -67,20 +66,13 @@ export class HistoryDebuggerPanel {
     private readonly secretStorage: vscode.SecretStorage,
     protected readonly httpServerUrl: string,
   ) {
-    const column = vscode.window.activeTextEditor?.viewColumn
+    this.panel = vscode.window.createWebviewPanel(HistoryDebuggerPanel.viewType, "Temporal", vscode.ViewColumn.Beside, {
+      // Enable javascript in the webview
+      enableScripts: true,
 
-    this.panel = vscode.window.createWebviewPanel(
-      HistoryDebuggerPanel.viewType,
-      "VSinder",
-      column || vscode.ViewColumn.One,
-      {
-        // Enable javascript in the webview
-        enableScripts: true,
-
-        // And restrict the webview to only loading content from our extension's `media` directory.
-        localResourceRoots: [vscode.Uri.joinPath(extensionUri, "out/compiled")],
-      },
-    )
+      // And restrict the webview to only loading content from our extension's `compiled` directory.
+      localResourceRoots: [vscode.Uri.joinPath(extensionUri, "out/compiled")],
+    })
 
     // Set the webview's initial html content
     this.update()
@@ -233,7 +225,12 @@ export class HistoryDebuggerPanel {
     this.currentHistoryBuffer = buffer
     const workDir = path.join(__dirname, "../src/replay_history")
     await this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
-    // const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(workDir))
+    if (vscode.window.tabGroups.all.length > 1) {
+      await vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup")
+    } else {
+      await vscode.commands.executeCommand("workbench.action.splitEditorLeft")
+    }
+
     await vscode.debug.startDebugging(undefined, {
       name: "Launch Program",
       type: "node",

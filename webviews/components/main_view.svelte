@@ -43,7 +43,7 @@
 
 <section>
   <p>Debug by ID</p>
-  <form on:submit|preventDefault={startFromWorkflowId}>
+  <form on:submit|once|preventDefault={startFromWorkflowId}>
     <input type="text" placeholder="namespace (default)" name="namespace" />
     <input type="text" required placeholder="Workflow ID *" name="workflowId" />
     <input type="text" placeholder="Run ID" name="runId" />
@@ -51,7 +51,7 @@
   </form>
   <hr />
   <p>Debug from history file</p>
-  <form on:submit|preventDefault={startFromHistoryFile}>
+  <form on:submit|once|preventDefault={startFromHistoryFile}>
     <input type="file" required name="file" />
     <input type="submit" value="Start" />
   </form>
