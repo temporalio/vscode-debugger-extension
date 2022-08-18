@@ -1,10 +1,10 @@
 import * as vscode from "vscode"
 import { HistoryDebuggerPanel } from "./panel"
 import { Server } from "./server"
-import AuthSettings from "./secret_storage"
+export let init_secret: vscode.SecretStorage
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  AuthSettings.init(context)
+  init_secret = context.secrets
   context.subscriptions.push(
     vscode.commands.registerCommand("temporal-debugger-plugin.start", async () => {
       const { url } = await Server.create()

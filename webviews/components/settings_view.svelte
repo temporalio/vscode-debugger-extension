@@ -25,8 +25,6 @@
       type: "secretStorage",
       ...convertedData,
     })
-    // TODO: this isn't fully implemented yet
-    // console.log(data)
   }
 </script>
 
