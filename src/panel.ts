@@ -1,5 +1,4 @@
 import * as vscode from "vscode"
-import fs from "node:fs"
 import path from "node:path"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"

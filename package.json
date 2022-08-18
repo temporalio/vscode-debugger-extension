@@ -7,14 +7,14 @@
     "vscode": "^1.68.0"
   },
   "activationEvents": [
-    "onCommand:temporal-debugger-plugin.start"
+    "onCommand:temporal-debugger-plugin.open-panel"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "temporal-debugger-plugin.start",
-        "title": "Launch Temporal Debugger Plugin"
+        "command": "temporal-debugger-plugin.open-panel",
+        "title": "Temporal: Open Panel"
       }
     ]
   },
