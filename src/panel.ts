@@ -6,7 +6,7 @@ import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
 import { Connection } from "@temporalio/client"
 import { Uri, workspace } from "vscode"
-import { init_secret } from "./extension"
+import { initSecret } from "./extension"
 
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
@@ -141,7 +141,7 @@ export class HistoryDebuggerPanel {
         }
         case "secretStorage": {
           await vscode.window.showInformationMessage("Starting debug session")
-          const secretStorage = init_secret
+          const secretStorage = initSecret
           for (const key in e) {
             await secretStorage.store(key, e[key])
             console.log(await secretStorage.get(key))
