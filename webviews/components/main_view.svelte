@@ -44,6 +44,7 @@
 <section>
   <p>Debug by ID</p>
   <form on:submit|preventDefault={startFromWorkflowId}>
+    <input type="text" placeholder="namespace (default)" name="namespace" />
     <input type="text" required placeholder="Workflow ID *" name="workflowId" />
     <input type="text" placeholder="Run ID" name="runId" />
     <input type="submit" value="Start" />

@@ -4,15 +4,38 @@ import path from "node:path"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
-import { Connection } from "@temporalio/client"
-import { Uri, workspace } from "vscode"
+import { Connection, LOCAL_TARGET } from "@temporalio/client"
+
+interface StartFromId {
+  namespace?: string
+  workflowId: string
+  runId?: string
+}
+
+interface Settings {
+  address: string
+  tls: boolean
+  clientCert?: Uint8Array
+  clientPrivateKey?: Uint8Array
+}
+
+interface EncodedSettings {
+  address: string
+  tls: boolean
+  base64ClientCert?: string
+  base64ClientPrivateKey?: string
+}
 
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
 
-  static install(extensionUri: vscode.Uri, httpServerUrl: string): HistoryDebuggerPanel {
+  static install(
+    extensionUri: vscode.Uri,
+    secretStorage: vscode.SecretStorage,
+    httpServerUrl: string,
+  ): HistoryDebuggerPanel {
     if (this._instance === undefined) {
-      this._instance = new this(extensionUri, httpServerUrl)
+      this._instance = new this(extensionUri, secretStorage, httpServerUrl)
     }
     return this._instance
   }
@@ -40,7 +63,11 @@ export class HistoryDebuggerPanel {
     this.update()
   }
 
-  private constructor(protected readonly extensionUri: vscode.Uri, protected readonly httpServerUrl: string) {
+  private constructor(
+    protected readonly extensionUri: vscode.Uri,
+    private readonly secretStorage: vscode.SecretStorage,
+    protected readonly httpServerUrl: string,
+  ) {
     const column = vscode.window.activeTextEditor?.viewColumn
 
     this.panel = vscode.window.createWebviewPanel(
@@ -52,10 +79,7 @@ export class HistoryDebuggerPanel {
         enableScripts: true,
 
         // And restrict the webview to only loading content from our extension's `media` directory.
-        localResourceRoots: [
-          vscode.Uri.joinPath(extensionUri, "media"),
-          vscode.Uri.joinPath(extensionUri, "out/compiled"),
-        ],
+        localResourceRoots: [vscode.Uri.joinPath(extensionUri, "out/compiled")],
       },
     )
 
@@ -68,22 +92,7 @@ export class HistoryDebuggerPanel {
 
     // TODO: this should only be used for plugin development
     const server = http.createServer((_req, res) => {
-      // vscode.commands.executeCommand("Developer: Reload webviews")
-      vscode.commands.executeCommand("workbench.action.webview.reloadWebviewAction").then(
-        () => {
-          // TODO: remove this section after history development is done, it doesn't belong in the app
-          const history = historyFromJSON(
-            JSON.parse(
-              fs.readFileSync(path.resolve(__dirname, "../samples/multiple-signals-termined-after-days.json"), "utf8"),
-            ),
-          )
-          const bytes = new Uint8Array(temporal.api.history.v1.History.encodeDelimited(history).finish())
-          void this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
-        },
-        () => {
-          // ignore
-        },
-      )
+      void vscode.commands.executeCommand("workbench.action.webview.reloadWebviewAction")
       res.writeHead(200, "OK")
       res.end()
     })
@@ -104,38 +113,117 @@ export class HistoryDebuggerPanel {
     delete HistoryDebuggerPanel._instance
   }
 
-  private update(): void {
-    const webview = this.panel.webview
+  private encodeSettings({ address, tls, clientCert, clientPrivateKey }: Settings): EncodedSettings {
+    return {
+      address,
+      tls,
+      base64ClientCert: clientCert ? Buffer.from(clientCert).toString("base64") : undefined,
+      base64ClientPrivateKey: clientPrivateKey ? Buffer.from(clientPrivateKey).toString("base64") : undefined,
+    }
+  }
 
-    this.panel.webview.html = this.getHtmlForWebview(webview)
+  private decodeSettings({ address, tls, base64ClientCert, base64ClientPrivateKey }: EncodedSettings): Settings {
+    return {
+      address,
+      tls,
+      clientCert: base64ClientCert ? Buffer.from(base64ClientCert, "base64") : undefined,
+      clientPrivateKey: base64ClientPrivateKey ? Buffer.from(base64ClientPrivateKey, "base64") : undefined,
+    }
+  }
+
+  private async getSettings(): Promise<EncodedSettings> {
+    const secret = await this.secretStorage.get("settings")
+    if (secret === undefined) {
+      return {
+        address: LOCAL_TARGET,
+        tls: false,
+      }
+    }
+    return JSON.parse(secret)
+  }
+
+  private async getConnection() {
+    const encoded = await this.getSettings()
+    const { address, tls, clientCert, clientPrivateKey } = this.decodeSettings(encoded)
+    return await Connection.connect({
+      address,
+      tls:
+        clientCert && clientPrivateKey
+          ? { clientCertPair: { crt: Buffer.from(clientCert), key: Buffer.from(clientPrivateKey) } }
+          : tls
+          ? true
+          : false,
+    })
+  }
+
+  private async downloadHistory({ namespace, workflowId, runId }: StartFromId) {
+    // TODO: Implement history pagination
+    const connection = await this.getConnection()
+    let nextPageToken: Uint8Array | undefined = undefined
+    const history: temporal.api.history.v1.IHistory = { events: [] }
+    do {
+      const response: temporal.api.workflowservice.v1.GetWorkflowExecutionHistoryResponse =
+        await connection.workflowService.getWorkflowExecutionHistory({
+          namespace: namespace || "default",
+          execution: {
+            workflowId,
+            runId,
+          },
+          nextPageToken,
+        })
+      if (!response.history?.events) {
+        throw new Error("Empty history")
+      }
+      history.events?.push(...response.history.events)
+      nextPageToken = response.nextPageToken
+    } while (nextPageToken && nextPageToken.length > 0)
+    return history
+  }
+
+  private update(): void {
+    const { webview } = this.panel
+
+    webview.html = this.getHtmlForWebview(webview)
 
     webview.onDidReceiveMessage(async (e): Promise<void> => {
-      // TODO: error handling
-      switch (e.type) {
-        case "startFromId": {
-          // TODO: Implement history pagination
-          const conn = await Connection.connect(/* { address: 'temporal.prod.company.com' } */)
-          const { history } = await conn.workflowService.getWorkflowExecutionHistory({
-            namespace: "default",
-            execution: {
-              workflowId: e.workflowId,
-              runId: e.runId,
-            },
-          })
-          if (!history) {
-            await vscode.window.showErrorMessage("Empty history")
+      try {
+        switch (e.type) {
+          case "getSettings": {
+            const settings = await this.getSettings()
+            await this.panel.webview.postMessage({
+              type: "settingsLoaded",
+              settings: {
+                address: settings.address,
+                tls: settings.tls,
+                hasClientCert: !!settings.base64ClientCert,
+                hasClientPrivateKey: !!settings.base64ClientPrivateKey,
+              },
+            })
             break
           }
-          await this.handleStartProject(history)
-          break
+          case "updateSettings": {
+            e.settings.address ??= LOCAL_TARGET
+            e.settings.tls ??= false
+            const encodedSettings = this.encodeSettings(e.settings)
+            await this.secretStorage.store("settings", JSON.stringify(encodedSettings))
+            await vscode.window.showInformationMessage("Settings updated")
+            break
+          }
+          case "startFromId": {
+            const history = await this.downloadHistory(e)
+            await this.handleStartProject(history)
+            break
+          }
+          case "startFromHistory": {
+            const buffer = Buffer.from(e.buffer)
+            // TODO: support binary history too
+            const history = historyFromJSON(JSON.parse(buffer.toString()))
+            await this.handleStartProject(history)
+            break
+          }
         }
-        case "startFromHistory": {
-          const buffer = Buffer.from(e.buffer)
-          // TODO: support binary history too
-          const history = historyFromJSON(JSON.parse(buffer.toString()))
-          await this.handleStartProject(history)
-          break
-        }
+      } catch (err) {
+        await vscode.window.showErrorMessage(`${err}`)
       }
     })
   }

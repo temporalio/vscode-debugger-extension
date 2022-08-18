@@ -7,7 +7,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand("temporal-debugger-plugin.start", async () => {
       const { url } = await Server.create()
       console.log(`Server listening on ${url}`)
-      HistoryDebuggerPanel.install(context.extensionUri, url).show()
+      HistoryDebuggerPanel.install(context.extensionUri, context.secrets, url).show()
     }),
   )
 }

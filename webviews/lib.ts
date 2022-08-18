@@ -19,3 +19,10 @@ export interface WorkflowTask {
   status: "COMPLETED" | "FAILED" | "TIMED_OUT"
   hasBreakpoint: boolean
 }
+
+export interface ViewSettings {
+  address: string
+  tls: boolean
+  hasClientCert: boolean
+  hasClientPrivateKey: boolean
+}

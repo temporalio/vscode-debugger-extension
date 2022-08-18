@@ -1,21 +1,24 @@
 <script lang="ts">
+  import { temporal } from "@temporalio/proto"
   import HistoryView from "./history_view.svelte"
   import MainView from "./main_view.svelte"
   import SettingsView from "./settings_view.svelte"
-  import { temporal } from "@temporalio/proto"
 
   type View = "main" | "history" | "settings"
   let currentView: View = "main"
   let currentHistory: temporal.api.history.v1.IHistory
+  const eventEmitter = new EventTarget()
 
   window.addEventListener("message", (event) => {
     switch (event.data.type) {
+      case "settingsLoaded":
+        eventEmitter.dispatchEvent(new CustomEvent("settingsLoaded", { detail: event.data.settings }))
+        break
       case "historyProcessed":
         currentHistory = temporal.api.history.v1.History.decode(event.data.history)
         switchToHistoryView()
         break
       default:
-
       // Notify unexpected error
     }
   })
@@ -42,10 +45,10 @@
     on:click={switchToHistoryView}
     disabled={currentView === "history" || currentHistory == null} />
   {#if currentView === "main"}
-    <svelte:component this={MainView} />
+    <MainView />
   {:else if currentView === "settings"}
-    <svelte:component this={SettingsView} />
+    <SettingsView {eventEmitter} />
   {:else}
-    <svelte:component this={HistoryView} history={currentHistory} />
+    <HistoryView history={currentHistory} />
   {/if}
 </main>
