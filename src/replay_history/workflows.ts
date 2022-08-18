@@ -10,6 +10,7 @@ export const signals = {
 }
 
 export async function example(): Promise<void> {
+  // eslint-disable-next-line no-debugger
   debugger
   let value = 0
   wf.setHandler(signals.add, (x: number) => {

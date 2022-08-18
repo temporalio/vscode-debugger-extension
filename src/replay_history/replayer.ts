@@ -4,8 +4,12 @@ import { temporal } from "@temporalio/proto"
 
 export async function run(): Promise<void> {
   const pluginUrl = process.env.TEMPORAL_DEBUGGER_PLUGIN_URL
+  const optionsPath = process.env.TEMPORAL_DEBUGGER_REPLAYER_OPTIONS_PATH
   if (!pluginUrl) {
     throw new Error("Missing TEMPORAL_DEBUGGER_PLUGIN_URL environment variable")
+  }
+  if (!optionsPath) {
+    throw new Error("Missing TEMPORAL_DEBUGGER_REPLAYER_OPTIONS_PATH environment variable")
   }
   const req = http.get(`${pluginUrl}/history`)
   const response = await new Promise<http.IncomingMessage>((resolve, reject) => {
@@ -23,15 +27,10 @@ export async function run(): Promise<void> {
   const body = Buffer.concat(chunks)
   const history = temporal.api.history.v1.History.decode(body, parseInt(contentLength))
 
-  // @@@SNIPSTART typescript-history-get-workflowhistory
-  await Worker.runReplayHistory(
-    {
-      workflowsPath: require.resolve("./workflows"),
-      replayName: "calc",
-    },
-    history,
-  )
-  // @@@SNIPEND
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { options } = require(optionsPath)
+  console.log(options)
+  await Worker.runReplayHistory(options, history)
 }
 
 run().catch((err) => {

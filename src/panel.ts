@@ -148,7 +148,6 @@ export class HistoryDebuggerPanel {
   }
 
   private async downloadHistory({ namespace, workflowId, runId }: StartFromId) {
-    // TODO: Implement history pagination
     const connection = await this.getConnection()
     let nextPageToken: Uint8Array | undefined = undefined
     const history: temporal.api.history.v1.IHistory = { events: [] }
@@ -219,11 +218,13 @@ export class HistoryDebuggerPanel {
     })
   }
 
+  /* eslint-disable @typescript-eslint/naming-convention */
   private async handleStartProject(history: temporal.api.history.v1.IHistory): Promise<void> {
     const bytes = new Uint8Array(temporal.api.history.v1.History.encode(history).finish())
     const buffer = Buffer.from(bytes)
     this.currentHistoryBuffer = buffer
     const workDir = path.join(__dirname, "../src/replay_history")
+    const optionsPath = path.join(workDir, "user-options.ts")
     await this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
     if (vscode.window.tabGroups.all.length > 1) {
       await vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup")
@@ -240,8 +241,10 @@ export class HistoryDebuggerPanel {
       cwd: workDir,
       skipFiles: ["<node_internals>/**"],
       args: ["replayer.ts"],
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      env: { TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl },
+      env: {
+        TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl,
+        TEMPORAL_DEBUGGER_REPLAYER_OPTIONS_PATH: optionsPath,
+      },
       internalConsoleOptions: "openOnSessionStart",
     })
     await vscode.window.showInformationMessage("Starting debug session")
