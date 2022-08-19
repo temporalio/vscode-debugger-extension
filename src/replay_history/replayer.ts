@@ -1,6 +1,11 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import http from "http"
-import { Worker } from "@temporalio/worker"
-import { temporal } from "@temporalio/proto"
+
+// Require worker and proto from workspace instead of the plugin's directory
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const { Worker } = require(require.resolve("@temporalio/worker", { paths: [process.cwd()] }))
+const { temporal } = require(require.resolve("@temporalio/proto", { paths: [process.cwd()] }))
 
 export async function run(): Promise<void> {
   const pluginUrl = process.env.TEMPORAL_DEBUGGER_PLUGIN_URL
@@ -29,7 +34,6 @@ export async function run(): Promise<void> {
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { options } = require(optionsPath)
-  console.log(options)
   await Worker.runReplayHistory(options, history)
 }
 

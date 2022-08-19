@@ -223,8 +223,15 @@ export class HistoryDebuggerPanel {
     const bytes = new Uint8Array(temporal.api.history.v1.History.encode(history).finish())
     const buffer = Buffer.from(bytes)
     this.currentHistoryBuffer = buffer
-    const workDir = path.join(__dirname, "../src/replay_history")
-    const optionsPath = path.join(workDir, "user-options.ts")
+    const workspace = vscode.workspace.workspaceFolders?.[0]
+    if (workspace === undefined) {
+      // TODO: instruct user what to do in this situation
+      throw new Error("Could not locate a workspace folder")
+    }
+    const cwd = workspace.uri.fsPath
+    const optionsPath = path.join(cwd, "packages/test/src/user-options.ts")
+    // const optionsPath = path.join(__dirname, "../src/user-options.ts")
+    const replayerPath = path.join(__dirname, "../src/replay_history/replayer.ts")
     await this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
     if (vscode.window.tabGroups.all.length > 1) {
       await vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup")
@@ -232,20 +239,21 @@ export class HistoryDebuggerPanel {
       await vscode.commands.executeCommand("workbench.action.splitEditorLeft")
     }
 
-    await vscode.debug.startDebugging(undefined, {
+    await vscode.debug.startDebugging(workspace, {
       name: "Launch Program",
       type: "node",
       request: "launch",
       runtimeExecutable: "node",
       runtimeArgs: ["--nolazy", "-r", "ts-node/register/transpile-only"],
-      cwd: workDir,
+      cwd,
       skipFiles: ["<node_internals>/**"],
-      args: ["replayer.ts"],
+      args: [replayerPath],
       env: {
         TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl,
         TEMPORAL_DEBUGGER_REPLAYER_OPTIONS_PATH: optionsPath,
       },
       internalConsoleOptions: "openOnSessionStart",
+      pauseForSourceMap: true,
     })
     await vscode.window.showInformationMessage("Starting debug session")
   }
