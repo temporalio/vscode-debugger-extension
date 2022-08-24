@@ -7,7 +7,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // TODO: destroy server if panel is destroyed?
   let server: Server | undefined = undefined
   context.subscriptions.push(
-    vscode.commands.registerCommand("temporal-debugger-plugin.open-panel", async () => {
+    vscode.commands.registerCommand("temporal.debugger-extension.open-panel", async () => {
       if (!server) {
         server = await Server.create()
         console.log(`Server listening on ${server.url}`)

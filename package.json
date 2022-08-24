@@ -1,22 +1,32 @@
 {
   "name": "debugger",
-  "displayName": "temporal-debugger-plugin",
-  "description": "Temporal VSCode Debugger plugin",
+  "displayName": "temporal-debugger-extension",
+  "description": "Temporal VSCode Debugger extension",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.68.0"
   },
   "activationEvents": [
-    "onCommand:temporal-debugger-plugin.open-panel"
+    "onCommand:temporal.debugger-extension.open-panel"
   ],
   "main": "./extension/dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "temporal-debugger-plugin.open-panel",
+        "command": "temporal.debugger-extension.open-panel",
         "title": "Temporal: Open Panel"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Temporal debugger",
+      "properties": {
+        "temporal.replayerEntrypoint": {
+          "type": "string",
+          "default": "src/debug-replayer.ts",
+          "description": "Specifies which file will be used to start a replayer process."
+        }
+      }
+    }
   },
   "categories": [
     "Debuggers",

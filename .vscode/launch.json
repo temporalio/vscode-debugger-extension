@@ -10,6 +10,9 @@
       "type": "extensionHost",
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "env": {
+        "TEMPORAL_DEBUGGER_EXTENSION_DEV_MODE": "true"
+      },
       "outFiles": ["${workspaceFolder}/extension/dist/**/*.js"]
     }
   ]
