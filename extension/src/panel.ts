@@ -1,5 +1,4 @@
 import * as vscode from "vscode"
-import path from "node:path"
 import fs from "node:fs/promises"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
@@ -84,7 +83,7 @@ export class HistoryDebuggerPanel {
       enableScripts: true,
 
       // And restrict the webview to only loading content from our extension's `compiled` directory.
-      localResourceRoots: [vscode.Uri.joinPath(extensionUri, "out/compiled")],
+      localResourceRoots: [vscode.Uri.joinPath(extensionUri, "webview/dist")],
     })
 
     // Set the webview's initial html content
@@ -246,15 +245,15 @@ export class HistoryDebuggerPanel {
       throw new Error("Could not locate a workspace folder")
     }
     const cwd = workspace.uri.fsPath
-    const replayerPath = path.join(cwd, "packages/test/src/vscode-replayer.ts")
+    const replayerPath = vscode.Uri.joinPath(workspace.uri, "packages/test/src/vscode-replayer.ts").fsPath
     await this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
     if (vscode.window.tabGroups.all.length > 1) {
       await vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup")
     } else {
       await vscode.commands.executeCommand("workbench.action.splitEditorLeft")
     }
-
-    const baseConfig = JSON.parse(await fs.readFile(path.join(__dirname, "../configs/node-template.json"), "utf8"))
+    const templatePath = vscode.Uri.joinPath(this.extensionUri, "configs/node-template.json").fsPath
+    const baseConfig = JSON.parse(await fs.readFile(templatePath, "utf8"))
     await vscode.debug.startDebugging(workspace, {
       ...baseConfig,
       cwd,
@@ -268,8 +267,8 @@ export class HistoryDebuggerPanel {
 
   private getHtmlForWebview(webview: vscode.Webview): string {
     // And the uri we use to load this script in the webview
-    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "out", "compiled", "app.js"))
-    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "out", "compiled", "app.css"))
+    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "webview", "dist", "app.js"))
+    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "webview", "dist", "app.css"))
 
     return `<!DOCTYPE html>
       <html lang="en">
@@ -282,8 +281,7 @@ export class HistoryDebuggerPanel {
           and only allow scripts that have a specific nonce.
         -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <link href="${styleUri}" rel="stylesheet">
-
+        <link href="${styleUri}" rel="stylesheet">
       </head>
       <body>
       <script>

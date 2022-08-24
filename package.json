@@ -9,7 +9,7 @@
   "activationEvents": [
     "onCommand:temporal-debugger-plugin.open-panel"
   ],
-  "main": "./out/extension.js",
+  "main": "./extension/dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -73,6 +73,7 @@
   },
   "dependencies": {
     "@temporalio/client": "^1.1.0",
+    "@temporalio/common": "^1.1.0",
     "@temporalio/proto": "^1.1.0",
     "express": "^4.18.1"
   }
