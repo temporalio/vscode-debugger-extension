@@ -44,10 +44,13 @@
     "@typescript-eslint/eslint-plugin": "^5.30.0",
     "@typescript-eslint/parser": "^5.30.0",
     "@vscode/test-electron": "^2.1.5",
+    "concurrently": "^7.3.0",
     "eslint": "^8.18.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-deprecation": "^1.3.2",
     "eslint-plugin-tsdoc": "^0.2.16",
+    "humanize-duration": "^3.27.2",
+    "nodemon": "^2.0.19",
     "prettier": "2.7.1",
     "rollup": "^2.77.0",
     "rollup-plugin-css-only": "^3.1.0",
@@ -60,27 +63,17 @@
     "typescript": "^4.7.4"
   },
   "scripts": {
-    "build.extension": "tsc --build",
-    "build.extension.watch": "tsc --build --watch",
+    "build.extension": "tsc --build extension",
+    "build.extension.watch": "tsc --build --watch extension",
+    "build.webview": "rollup -c",
     "build.webview.watch": "rollup -c -w --watch.onEnd \"node scripts/reload-webview.mjs\"",
     "build.watch": "concurrently \"npm run build.extension.watch\" \"npm run build.webview.watch\"",
     "format": "prettier --write .",
-    "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check .",
-    "start": "ts-node src/replay_history/worker.ts",
-    "start.watch": "nodemon src/replay_history/worker.ts",
-    "workflow": "ts-node src/replay_history/client.ts",
-    "replayer": "ts-node src/replay_history/replayer.ts"
+    "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check ."
   },
   "dependencies": {
-    "@temporalio/activity": "^1.0.0",
-    "@temporalio/client": "^1.0.0",
-    "@temporalio/proto": "^1.0.0",
-    "@temporalio/worker": "^1.0.0",
-    "@temporalio/workflow": "^1.0.0",
-    "concurrently": "^7.3.0",
-    "express": "^4.18.1",
-    "humanize-duration": "^3.27.2",
-    "nodemon": "^2.0.19",
-    "vscode-uri": "^3.0.3"
+    "@temporalio/client": "^1.1.0",
+    "@temporalio/proto": "^1.1.0",
+    "express": "^4.18.1"
   }
 }

@@ -1,5 +1,6 @@
 import * as vscode from "vscode"
 import path from "node:path"
+import fs from "node:fs/promises"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
@@ -52,13 +53,25 @@ export class HistoryDebuggerPanel {
 
   private readonly panel: vscode.WebviewPanel
   private disposables: vscode.Disposable[] = []
+  private updateWorkflowTaskHasBreakpoint = (_hasBreakpoint: boolean) => {
+    // noop, to be set in the updateCurrentWFTStarted handler
+  }
 
   show(): void {
     this.panel.reveal(vscode.ViewColumn.Beside)
   }
 
   async updateCurrentWFTStarted(eventId: number): Promise<void> {
+    const p = new Promise<boolean>((resolve, reject) => {
+      this.updateWorkflowTaskHasBreakpoint = resolve
+      // TODO: clear timeout if disposed
+      setTimeout(() => reject(new Error("Timed out waiting for response from webview")), 5000)
+    })
     await this.panel.webview.postMessage({ type: "currentWFTUpdated", eventId })
+    const hasBreakpoint = await p
+    if (hasBreakpoint) {
+      await vscode.commands.executeCommand("workbench.action.debug.pause")
+    }
   }
 
   private constructor(
@@ -178,6 +191,10 @@ export class HistoryDebuggerPanel {
     webview.onDidReceiveMessage(async (e): Promise<void> => {
       try {
         switch (e.type) {
+          case "updateWorkflowTaskHasBreakpoint": {
+            this.updateWorkflowTaskHasBreakpoint(e.hasBreakpoint)
+            break
+          }
           case "getSettings": {
             const settings = await this.getSettings()
             await this.panel.webview.postMessage({
@@ -229,9 +246,7 @@ export class HistoryDebuggerPanel {
       throw new Error("Could not locate a workspace folder")
     }
     const cwd = workspace.uri.fsPath
-    const optionsPath = path.join(cwd, "packages/test/src/user-options.ts")
-    // const optionsPath = path.join(__dirname, "../src/user-options.ts")
-    const replayerPath = path.join(__dirname, "../src/replay_history/replayer.ts")
+    const replayerPath = path.join(cwd, "packages/test/src/vscode-replayer.ts")
     await this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
     if (vscode.window.tabGroups.all.length > 1) {
       await vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup")
@@ -239,21 +254,14 @@ export class HistoryDebuggerPanel {
       await vscode.commands.executeCommand("workbench.action.splitEditorLeft")
     }
 
+    const baseConfig = JSON.parse(await fs.readFile(path.join(__dirname, "../configs/node-template.json"), "utf8"))
     await vscode.debug.startDebugging(workspace, {
-      name: "Launch Program",
-      type: "node",
-      request: "launch",
-      runtimeExecutable: "node",
-      runtimeArgs: ["--nolazy", "-r", "ts-node/register/transpile-only"],
+      ...baseConfig,
       cwd,
-      skipFiles: ["<node_internals>/**"],
       args: [replayerPath],
       env: {
         TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl,
-        TEMPORAL_DEBUGGER_REPLAYER_OPTIONS_PATH: optionsPath,
       },
-      internalConsoleOptions: "openOnSessionStart",
-      pauseForSourceMap: true,
     })
     await vscode.window.showInformationMessage("Starting debug session")
   }
@@ -263,12 +271,13 @@ export class HistoryDebuggerPanel {
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "out", "compiled", "app.js"))
     const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "out", "compiled", "app.css"))
 
-    // TODO: nonce was removed here because protobufjs uses code generation, see if we can bring it back
     return `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <!--
+          TODO: nonce was removed here because protobufjs uses code generation, see if we can bring it back.
+
           Use a content security policy to only allow loading images from https or from our extension directory,
           and only allow scripts that have a specific nonce.
         -->
@@ -278,6 +287,7 @@ export class HistoryDebuggerPanel {
       </head>
       <body>
       <script>
+        // Set vscode global object
         const vscode = acquireVsCodeApi();
       </script>
       </body>

@@ -2,31 +2,26 @@
   import { onDestroy } from "svelte"
   import humanizeDuration from "humanize-duration"
   import { temporal } from "@temporalio/proto"
-  import { type History, EventType, type Timestamp, type CategorizedEvent, type WorkflowTask } from "../lib"
-  import BreakpointButton from "./breakpoint_button.svelte"
+  import { tsToDate } from "@temporalio/common"
+  import { type History, EventType, type CategorizedEvent, type WorkflowTask } from "../lib"
+  import BreakpointButton from "../components/breakpoint-button.svelte"
 
   export let eventEmitter: EventTarget
-  const listener = (e) => {
-    currentWorkflowTaskStartedEventId = (e as CustomEvent<number>).detail
+  const listener = ({ detail }: CustomEvent<number>) => {
+    currentWorkflowTaskStartedEventId = detail
+    vscode.postMessage({
+      type: "updateWorkflowTaskHasBreakpoint",
+      hasBreakpoint:
+        workflowTasks.find(({ startedEventId }) => startedEventId === currentWorkflowTaskStartedEventId)
+          ?.hasBreakpoint ?? false,
+    })
   }
-  eventEmitter.addEventListener("currentWFTUpdated", listener, { once: true })
-  onDestroy(() => eventEmitter.removeEventListener("currentWFTUpdated", listener))
+  eventEmitter.addEventListener("currentWFTUpdated", listener as EventListener)
+  onDestroy(() => eventEmitter.removeEventListener("currentWFTUpdated", listener as EventListener))
 
   export let history: History
 
-  // TODO: use the function from the SDK once 1.1.0 is released
-  function tsToDate(ts: Timestamp | null | undefined): Date {
-    if (ts === undefined || ts === null) {
-      throw new Error(`Expected timestamp, got ${ts}`)
-    }
-    const { seconds, nanos } = ts
-    return new Date((seconds as unknown as number) * 1000 + (nanos || 0) / 1000000)
-  }
-
-  const firstWFTStartedEvent = history.events?.find((e) => e.workflowTaskStartedEventAttributes)
-  // There might not be a WFT started event in the history (no task was ever processed)
-  // TODO: eventId should be Long, not number, will be fixed in SDK 1.0.0
-  let currentWorkflowTaskStartedEventId = (firstWFTStartedEvent?.eventId as unknown as number) ?? -1
+  let currentWorkflowTaskStartedEventId = -1
 
   type Category =
     | "WFT_COMPLETED"
@@ -108,7 +103,7 @@
   }
 
   //Collecting workflow
-  function workflowTasks(history: temporal.api.history.v1.IHistory): WorkflowTask[] {
+  function getWorkflowTasks(history: temporal.api.history.v1.IHistory): WorkflowTask[] {
     if (history === undefined) {
       return []
     }
@@ -120,7 +115,8 @@
       if (ev.eventType == null) {
         throw new TypeError("Got event with no type")
       }
-      const category = categorizeEvent(ev.eventType)
+      // When new events are added categorizeEvent will return undefined
+      const category = categorizeEvent(ev.eventType) ?? "EVENT"
       switch (category) {
         case "IGNORE":
           break
@@ -161,7 +157,7 @@
       case temporal.api.enums.v1.EventType.EVENT_TYPE_WORKFLOW_EXECUTION_SIGNALED:
         return `(${event.workflowExecutionSignaledEventAttributes?.signalName})`
       case temporal.api.enums.v1.EventType.EVENT_TYPE_TIMER_STARTED:
-        return `⏱ (${humanizeDuration(tsToDate(event.timerStartedEventAttributes?.startToFireTimeout!))})`
+        return `⏱ (${humanizeDuration(tsToDate(event.timerStartedEventAttributes?.startToFireTimeout!).getTime())})`
       case temporal.api.enums.v1.EventType.EVENT_TYPE_TIMER_FIRED:
         return `⏱🔥`
       case temporal.api.enums.v1.EventType.EVENT_TYPE_TIMER_CANCELED:
@@ -224,12 +220,18 @@
     const endTime = tsToDate(lastEvent.eventTime!).getTime()
     return humanizeDuration(endTime - startTime)
   }
+
+  const workflowTasks = getWorkflowTasks(history)
+
+  $: {
+    currentWorkflowTaskStartedEventId
+  }
 </script>
 
 <title>Project Workflow panel</title>
 <h1>{title(history)}</h1>
 <h2>duration: {duration(history)}</h2>
-{#each workflowTasks(history) as workflowTask}
+{#each workflowTasks as workflowTask}
   <div class:current={workflowTask.startedEventId === currentWorkflowTaskStartedEventId}>
     <BreakpointButton {workflowTask} />Workflow Task ({workflowTask.status})
     {#each workflowTask.events as event}
@@ -242,7 +244,6 @@
 
 <style>
   .current {
-    background-color: rgb(183, 183, 100);
-    color: black;
+    background-color: #ffff1c2e;
   }
 </style>
