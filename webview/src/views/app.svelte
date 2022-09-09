@@ -1,8 +1,8 @@
 <script lang="ts">
   import { temporal } from "@temporalio/proto"
-  import HistoryView from "./history_view.svelte"
-  import MainView from "./main_view.svelte"
-  import SettingsView from "./settings_view.svelte"
+  import HistoryView from "./history.svelte"
+  import MainView from "./main.svelte"
+  import SettingsView from "./settings.svelte"
 
   type View = "main" | "history" | "settings"
   let currentView: View = "main"

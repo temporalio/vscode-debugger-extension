@@ -8,12 +8,12 @@ import json from "@rollup/plugin-json"
 import path from "path"
 
 export default {
-  input: path.join(__dirname, "webviews/pages/app.ts"),
+  input: path.join(__dirname, "webview/src/pages/app.ts"),
   output: {
     sourcemap: true,
     format: "iife",
     name: "app",
-    file: "out/compiled/app.js",
+    file: "webview/dist/app.js",
   },
   plugins: [
     svelte({
@@ -26,7 +26,7 @@ export default {
     css({ output: "app.css" }),
     commonjs(),
     typescript({
-      tsconfig: "webviews/tsconfig.json",
+      tsconfig: "webview/tsconfig.json",
     }),
     json(),
   ],

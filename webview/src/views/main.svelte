@@ -1,6 +1,4 @@
 <script lang="ts">
-  import type { temporal } from "@temporalio/proto"
-
   /**
    * Event listener for starting a session from workflow ID
    */

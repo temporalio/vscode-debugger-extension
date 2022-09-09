@@ -1,0 +1,10 @@
+{
+  "name": "Launch Program",
+  "type": "node",
+  "request": "launch",
+  "runtimeExecutable": "node",
+  "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
+  "skipFiles": ["<node_internals>/**", "**/node_modules/@temporalio/worker/src/**"],
+  "internalConsoleOptions": "openOnSessionStart",
+  "pauseForSourceMap": true
+}
