@@ -77,6 +77,7 @@
     "build.extension.watch": "tsc --build --watch extension",
     "build.webview": "rollup -c",
     "build.webview.watch": "rollup -c -w --watch.onEnd \"node scripts/reload-webview.mjs\"",
+    "build": "concurrently \"npm run build.extension\" \"npm run build.webview\"",
     "build.watch": "concurrently \"npm run build.extension.watch\" \"npm run build.webview.watch\"",
     "format": "prettier --write .",
     "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check ."
