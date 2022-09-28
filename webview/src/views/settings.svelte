@@ -14,13 +14,14 @@
   /**
    * Event listener for saving the settings
    */
-  async function saveSettings(e: Event) {
+  async function saveSettings() {
     // TODO: handle errors
-    if (!(e.target instanceof HTMLFormElement)) {
+    const form = document.getElementById("settings-form")
+    if (!(form instanceof HTMLFormElement)) {
       throw new TypeError("Expected form element")
     }
 
-    const data = new FormData(e.target)
+    const data = new FormData(form)
 
     const settings = Object.fromEntries(
       await Promise.all(
@@ -54,7 +55,7 @@
     <p>Loading...</p>
   {:then settings}
     <p>Configure client connection (for downloading histories)</p>
-    <form on:submit|preventDefault={saveSettings}>
+    <form id="settings-form">
       <vscode-text-field type="text" required value={settings.address}>Address</vscode-text-field>
       <div class="checkbox">
         <vscode-checkbox checked={settings.tls}>TLS?</vscode-checkbox>
@@ -66,7 +67,7 @@
       <input type="file" name="clientPrivateKey" />
 
       <div class="submit">
-        <vscode-button type="submit">Submit</vscode-button>
+        <vscode-button on:click={saveSettings}>Submit</vscode-button>
       </div>
     </form>
   {/await}

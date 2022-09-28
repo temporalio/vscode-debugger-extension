@@ -2,11 +2,12 @@
   /**
    * Event listener for starting a session from workflow ID
    */
-  function startFromWorkflowId(e: Event) {
-    if (!(e.target instanceof HTMLFormElement)) {
+  function startFromWorkflowId() {
+    const form = document.getElementById("debug-by-id-form")
+    if (!(form instanceof HTMLFormElement)) {
       throw new TypeError("Expected form element")
     }
-    const data = Object.fromEntries(new FormData(e.target))
+    const data = Object.fromEntries(new FormData(form))
 
     // TODO: implement this
     vscode.postMessage({
@@ -28,11 +29,12 @@
   /**
    * Event listener for starting a session from history file
    */
-  function startFromHistoryFile(e: Event) {
-    if (!(e.target instanceof HTMLFormElement)) {
+  function startFromHistoryFile() {
+    const form = document.getElementById("debug-from-history-form")
+    if (!(form instanceof HTMLFormElement)) {
       throw new TypeError("Expected form element")
     }
-    const fileinfo = Object.fromEntries(new FormData(e.target)).file
+    const fileinfo = Object.fromEntries(new FormData(form)).file
 
     const fileblob = new Blob([fileinfo])
     processHistory(fileblob)
@@ -41,22 +43,22 @@
 
 <section>
   <p>Debug by ID</p>
-  <form class="debug-id-form" on:submit|once|preventDefault={startFromWorkflowId}>
+  <form id="debug-by-id-form">
     <vscode-text-field type="text" placeholder="Namespace (default)" name="namespace" />
     <vscode-text-field type="text" required placeholder="Workflow ID *" name="workflowId" />
     <vscode-text-field type="text" placeholder="Run ID" name="runId" />
-    <vscode-button type="submit">Start</vscode-button>
+    <vscode-button on:click={startFromWorkflowId}>Start</vscode-button>
   </form>
   <vscode-divider role="presentation" />
   <p>Debug from history file</p>
-  <form on:submit|once|preventDefault={startFromHistoryFile}>
+  <form id="debug-from-history-form">
     <input class="file-input" type="file" required name="file" />
-    <vscode-button class="start-button" type="submit">Start</vscode-button>
+    <vscode-button class="start-button" on:click={startFromHistoryFile}>Start</vscode-button>
   </form>
 </section>
 
 <style>
-  .debug-id-form {
+  #debug-by-id-form {
     display: flex;
     margin-bottom: 0.5rem;
   }
