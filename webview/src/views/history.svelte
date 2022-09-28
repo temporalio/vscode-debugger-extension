@@ -228,21 +228,34 @@
   }
 </script>
 
-<title>Project Workflow panel</title>
-<h1>{title(history)}</h1>
-<h2>duration: {duration(history)}</h2>
-{#each workflowTasks as workflowTask}
-  <div class:current={workflowTask.startedEventId === currentWorkflowTaskStartedEventId}>
-    <BreakpointButton {workflowTask} />Workflow Task ({workflowTask.status})
-    {#each workflowTask.events as event}
-      <ul>
-        {labelTextForHistoryEvent(event)}
+<section>
+  {#if history}
+    <h1>{title(history)}</h1>
+    <p>Duration: {duration(history)}</p>
+    {#each workflowTasks as workflowTask}
+      <ul class:current={workflowTask.startedEventId === currentWorkflowTaskStartedEventId}>
+        <BreakpointButton {workflowTask} />Workflow Task ({workflowTask.status})
+        {#each workflowTask.events as event}
+          <li>
+            {labelTextForHistoryEvent(event)}
+          </li>
+        {/each}
       </ul>
     {/each}
-  </div>
-{/each}
+  {/if}
+</section>
 
 <style>
+  section {
+    width: 100%;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0 0 0.5rem 0;
+  }
+  li {
+    margin: 0.5rem 0 0 1.5rem;
+  }
   .current {
     background-color: #ffff1c2e;
   }

@@ -4,7 +4,7 @@
 
   export let eventEmitter: EventTarget
   const settingsLoadedPromise = new Promise<ViewSettings>((resolve) => {
-    const listener = (e) => {
+    const listener = (e: Event) => {
       resolve((e as CustomEvent<ViewSettings>).detail)
     }
     eventEmitter.addEventListener("settingsLoaded", listener, { once: true })
@@ -50,22 +50,38 @@
 
 <section>
   {#await settingsLoadedPromise}
-    Loading...
+    <vscode-progress-ring />
+    <p>Loading...</p>
   {:then settings}
     <p>Configure client connection (for downloading histories)</p>
     <form on:submit|preventDefault={saveSettings}>
-      <label for="address">Address</label>
-      <input type="text" required value={settings.address} name="address" />
-      <label for="tls">TLS?</label>
-      <input type="checkbox" name="tls" checked={settings.tls} />
-      <div />
+      <vscode-text-field type="text" required value={settings.address}>Address</vscode-text-field>
+      <div class="checkbox">
+        <vscode-checkbox checked={settings.tls}>TLS?</vscode-checkbox>
+      </div>
       <label for="clientCert">Client cert {settings.hasClientCert ? "(present)" : ""}</label>
       <input type="file" name="clientCert" />
-      <div />
+
       <label for="clientPrivateKey">Client private key {settings.hasClientPrivateKey ? "(present)" : ""}</label>
       <input type="file" name="clientPrivateKey" />
-      <div />
-      <button type="submit">Submit</button>
+
+      <div class="submit">
+        <vscode-button type="submit">Submit</vscode-button>
+      </div>
     </form>
   {/await}
 </section>
+
+<style>
+  label {
+    display: block;
+    margin: 0.5rem 0;
+  }
+  .checkbox {
+    display: block;
+  }
+  .submit {
+    display: block;
+    margin-top: 1.75rem;
+  }
+</style>
