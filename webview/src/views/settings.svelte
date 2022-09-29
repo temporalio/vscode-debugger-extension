@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte"
+  import FileInput from "../components/file-input.svelte"
+
   import type { ViewSettings } from "../lib"
 
   export let eventEmitter: EventTarget
@@ -60,11 +62,12 @@
       <div class="checkbox">
         <vscode-checkbox checked={settings.tls}>TLS?</vscode-checkbox>
       </div>
-      <label for="clientCert">Client cert {settings.hasClientCert ? "(present)" : ""}</label>
-      <input type="file" name="clientCert" />
 
-      <label for="clientPrivateKey">Client private key {settings.hasClientPrivateKey ? "(present)" : ""}</label>
-      <input type="file" name="clientPrivateKey" />
+      <label for="client-cert">Client cert {settings.hasClientCert ? "(present)" : ""}</label>
+      <FileInput id="client-cert" />
+
+      <label for="client-private-key">Client private key {settings.hasClientPrivateKey ? "(present)" : ""}</label>
+      <FileInput id="client-private-key" />
 
       <div class="submit">
         <vscode-button on:click={saveSettings}>Submit</vscode-button>

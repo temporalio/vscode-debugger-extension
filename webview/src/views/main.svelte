@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FileInput from "../components/file-input.svelte"
   /**
    * Event listener for starting a session from workflow ID
    */
@@ -8,6 +9,9 @@
       throw new TypeError("Expected form element")
     }
     const data = Object.fromEntries(new FormData(form))
+
+    // TODO: handle required fields on submit
+    if (!data?.workflowId) return
 
     // TODO: implement this
     vscode.postMessage({
@@ -36,6 +40,9 @@
     }
     const fileinfo = Object.fromEntries(new FormData(form)).file
 
+    // TODO: handle required fields on submit
+    if (!fileinfo) return
+
     const fileblob = new Blob([fileinfo])
     processHistory(fileblob)
   }
@@ -52,7 +59,7 @@
   <vscode-divider role="presentation" />
   <p>Debug from history file</p>
   <form id="debug-from-history-form">
-    <input class="file-input" type="file" required name="file" />
+    <FileInput id="history-file" required />
     <vscode-button class="start-button" on:click={startFromHistoryFile}>Start</vscode-button>
   </form>
 </section>
@@ -61,9 +68,6 @@
   #debug-by-id-form {
     display: flex;
     margin-bottom: 0.5rem;
-  }
-  .file-input {
-    display: block;
   }
   vscode-text-field {
     margin-right: 0.625rem;
