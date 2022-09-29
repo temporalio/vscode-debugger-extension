@@ -1,12 +1,9 @@
 <script lang="ts">
   import type { WorkflowTask } from "../lib"
+  import { CircleFilled } from "svelte-codicons"
+
   export let workflowTask: WorkflowTask
-  let icon: string
   let hasBreakpoint = workflowTask.hasBreakpoint
-  $: {
-    hasBreakpoint
-    icon = hasBreakpoint ? "🔴" : "⚪"
-  }
 
   function toggleBreakpoint(workflowTask: WorkflowTask) {
     console.log("toggleBreakpoint", workflowTask)
@@ -14,14 +11,17 @@
   }
 </script>
 
-<input type="button" value={icon} on:click={toggleBreakpoint.bind(undefined, workflowTask)} />
+<div
+  class="checkbox"
+  role="checkbox"
+  aria-checked={hasBreakpoint}
+  tabindex="0"
+  on:click={toggleBreakpoint.bind(undefined, workflowTask)}>
+  <CircleFilled fill={hasBreakpoint ? "#FF0000" : "currentColor"} />
+</div>
 
 <style>
-  input {
-    background-color: #0000;
-    border: none;
-    border-radius: 50%;
-    padding: 0px 2px;
-    margin: 4px 2px;
+  .checkbox {
+    margin: 0.25rem 0.25rem 0 0.25rem;
   }
 </style>

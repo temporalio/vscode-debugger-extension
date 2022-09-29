@@ -1,10 +1,10 @@
 import App from "../views/app.svelte"
-import { 
-  provideVSCodeDesignSystem, 
-  vsCodeButton, 
-  vsCodePanels, 
-  vsCodePanelTab, 
-  vsCodePanelView, 
+import {
+  provideVSCodeDesignSystem,
+  vsCodeButton,
+  vsCodePanels,
+  vsCodePanelTab,
+  vsCodePanelView,
   vsCodeProgressRing,
   vsCodeTextField,
   vsCodeCheckbox,
@@ -16,14 +16,14 @@ const app = new App({
 })
 
 provideVSCodeDesignSystem().register(
-  vsCodeButton(), 
-  vsCodePanels(), 
-  vsCodePanelTab(), 
-  vsCodePanelView(), 
+  vsCodeButton(),
+  vsCodePanels(),
+  vsCodePanelTab(),
+  vsCodePanelView(),
   vsCodeProgressRing(),
   vsCodeTextField(),
   vsCodeCheckbox(),
-  vsCodeDivider()
-);
+  vsCodeDivider(),
+)
 
 export default app
