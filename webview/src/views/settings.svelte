@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte"
   import FileInput from "../components/file-input.svelte"
+  import SubmitButton from "../components/submit-button.svelte"
 
   import type { ViewSettings } from "../lib"
 
@@ -16,14 +17,12 @@
   /**
    * Event listener for saving the settings
    */
-  async function saveSettings() {
-    // TODO: handle errors
-    const form = document.getElementById("settings-form")
-    if (!(form instanceof HTMLFormElement)) {
+  async function saveSettings(e: Event) {
+    if (!(e.target instanceof HTMLFormElement)) {
       throw new TypeError("Expected form element")
     }
 
-    const data = new FormData(form)
+    const data = new FormData(e.target)
 
     const settings = Object.fromEntries(
       await Promise.all(
@@ -57,7 +56,7 @@
     <p>Loading...</p>
   {:then settings}
     <p>Configure client connection (for downloading histories)</p>
-    <form id="settings-form">
+    <form on:submit|once|preventDefault|stopPropagation={saveSettings}>
       <vscode-text-field type="text" required value={settings.address}>Address</vscode-text-field>
       <div class="checkbox">
         <vscode-checkbox checked={settings.tls}>TLS?</vscode-checkbox>
@@ -69,8 +68,8 @@
       <label for="client-private-key">Client private key {settings.hasClientPrivateKey ? "(present)" : ""}</label>
       <FileInput id="client-private-key" />
 
-      <div class="submit">
-        <vscode-button on:click={saveSettings}>Submit</vscode-button>
+      <div class="submit-btn">
+        <SubmitButton>Submit</SubmitButton>
       </div>
     </form>
   {/await}
@@ -84,8 +83,7 @@
   .checkbox {
     display: block;
   }
-  .submit {
-    display: block;
+  .submit-btn {
     margin-top: 1.75rem;
   }
 </style>

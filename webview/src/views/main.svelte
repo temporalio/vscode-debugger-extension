@@ -1,17 +1,14 @@
 <script lang="ts">
   import FileInput from "../components/file-input.svelte"
+  import SubmitButton from "../components/submit-button.svelte"
   /**
    * Event listener for starting a session from workflow ID
    */
-  function startFromWorkflowId() {
-    const form = document.getElementById("debug-by-id-form")
-    if (!(form instanceof HTMLFormElement)) {
+  function startFromWorkflowId(e: Event) {
+    if (!(e.target instanceof HTMLFormElement)) {
       throw new TypeError("Expected form element")
     }
-    const data = Object.fromEntries(new FormData(form))
-
-    // TODO: handle required fields on submit
-    if (!data?.workflowId) return
+    const data = Object.fromEntries(new FormData(e.target))
 
     // TODO: implement this
     vscode.postMessage({
@@ -33,15 +30,11 @@
   /**
    * Event listener for starting a session from history file
    */
-  function startFromHistoryFile() {
-    const form = document.getElementById("debug-from-history-form")
-    if (!(form instanceof HTMLFormElement)) {
+  function startFromHistoryFile(e: Event) {
+    if (!(e.target instanceof HTMLFormElement)) {
       throw new TypeError("Expected form element")
     }
-    const fileinfo = Object.fromEntries(new FormData(form)).file
-
-    // TODO: handle required fields on submit
-    if (!fileinfo) return
+    const fileinfo = Object.fromEntries(new FormData(e.target)).file
 
     const fileblob = new Blob([fileinfo])
     processHistory(fileblob)
@@ -50,29 +43,31 @@
 
 <section>
   <p>Debug by ID</p>
-  <form id="debug-by-id-form">
+  <form class="debug-by-id-form" on:submit|once|preventDefault={startFromWorkflowId}>
     <vscode-text-field type="text" placeholder="Namespace (default)" name="namespace" />
     <vscode-text-field type="text" required placeholder="Workflow ID *" name="workflowId" />
     <vscode-text-field type="text" placeholder="Run ID" name="runId" />
-    <vscode-button on:click={startFromWorkflowId}>Start</vscode-button>
+    <SubmitButton>Start</SubmitButton>
   </form>
   <vscode-divider role="presentation" />
   <p>Debug from history file</p>
-  <form id="debug-from-history-form">
+  <form on:submit|once|preventDefault={startFromHistoryFile}>
     <FileInput id="history-file" required />
-    <vscode-button class="start-button" on:click={startFromHistoryFile}>Start</vscode-button>
+    <div class="debug-history-btn">
+      <SubmitButton>Start</SubmitButton>
+    </div>
   </form>
 </section>
 
 <style>
-  #debug-by-id-form {
+  .debug-by-id-form {
     display: flex;
     margin-bottom: 0.5rem;
   }
   vscode-text-field {
     margin-right: 0.625rem;
   }
-  .start-button {
+  .debug-history-btn {
     margin-top: 0.875rem;
   }
 </style>
