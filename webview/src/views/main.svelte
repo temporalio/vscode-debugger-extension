@@ -1,5 +1,4 @@
 <script lang="ts">
-  import FileInput from "../components/file-input.svelte"
   import SubmitButton from "../components/submit-button.svelte"
   /**
    * Event listener for starting a session from workflow ID
@@ -52,7 +51,8 @@
   <vscode-divider role="presentation" />
   <p>Debug from history file</p>
   <form on:submit|once|preventDefault={startFromHistoryFile}>
-    <FileInput id="history-file" required />
+    <label for="history-file" hidden>History file</label>
+    <input id="history-file" type="file" required />
     <div class="debug-history-btn">
       <SubmitButton>Start</SubmitButton>
     </div>

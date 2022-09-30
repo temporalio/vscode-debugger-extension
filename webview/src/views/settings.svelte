@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onDestroy } from "svelte"
-  import FileInput from "../components/file-input.svelte"
   import SubmitButton from "../components/submit-button.svelte"
 
   import type { ViewSettings } from "../lib"
@@ -63,10 +62,10 @@
       </div>
 
       <label for="client-cert">Client cert {settings.hasClientCert ? "(present)" : ""}</label>
-      <FileInput id="client-cert" />
+      <input id="client-cert" type="file" />
 
       <label for="client-private-key">Client private key {settings.hasClientPrivateKey ? "(present)" : ""}</label>
-      <FileInput id="client-private-key" />
+      <input id="client-private-key" type="file" />
 
       <div class="submit-btn">
         <SubmitButton>Submit</SubmitButton>

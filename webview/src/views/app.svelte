@@ -51,3 +51,24 @@
     </vscode-panels>
   {/key}
 </main>
+
+<style>
+  /* Styling based on <vscode-button appearance="secondary" /> */
+  :global(input::file-selector-button) {
+    background: var(--button-secondary-background);
+    color: var(--button-secondary-foreground);
+    outline: none;
+    font-family: var(--font-family);
+    font-size: var(--type-ramp-base-font-size);
+    line-height: var(--type-ramp-base-line-height);
+    border-radius: 2px;
+    fill: currentcolor;
+    cursor: pointer;
+    padding: var(--button-padding-vertical) var(--button-padding-horizontal);
+    border: calc(var(--border-width) * 1px) solid var(--button-border);
+  }
+
+  :global(input::file-selector-button:hover) {
+    background: var(--button-secondary-hover-background);
+  }
+</style>
