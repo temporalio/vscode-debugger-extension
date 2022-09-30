@@ -228,31 +228,29 @@
 </script>
 
 <section>
-  {#if history}
-    <h1>{title(history)}</h1>
-    <p>Duration: {duration(history)}</p>
-    {#each workflowTasks as workflowTask, i}
-      <ul class:current={workflowTask.startedEventId === currentWorkflowTaskStartedEventId}>
-        <div class="workflow-task">
-          <BreakpointButton {workflowTask} />
-          <p>Workflow Task ({workflowTask.status})</p>
-        </div>
-        {#each workflowTask.events as event}
-          <li>
-            {#if event?.category === "COMMAND"}
-              <ArrowSmallLeft />
-            {:else}
-              <ArrowSmallRight />
-            {/if}
-            {labelTextForHistoryEvent(event)}
-          </li>
-        {/each}
-      </ul>
-      {#if i !== workflowTasks.length - 1}
-        <vscode-divider role="presentation" />
-      {/if}
-    {/each}
-  {/if}
+  <h1>{title(history)}</h1>
+  <p>Duration: {duration(history)}</p>
+  {#each workflowTasks as workflowTask, i}
+    <ul class:current={workflowTask.startedEventId === currentWorkflowTaskStartedEventId}>
+      <div class="workflow-task">
+        <BreakpointButton {workflowTask} />
+        <p>Workflow Task ({workflowTask.status})</p>
+      </div>
+      {#each workflowTask.events as event}
+        <li>
+          {#if event?.category === "COMMAND"}
+            <ArrowSmallLeft />
+          {:else}
+            <ArrowSmallRight />
+          {/if}
+          {labelTextForHistoryEvent(event)}
+        </li>
+      {/each}
+    </ul>
+    {#if i !== workflowTasks.length - 1}
+      <vscode-divider role="presentation" />
+    {/if}
+  {/each}
 </section>
 
 <style>
