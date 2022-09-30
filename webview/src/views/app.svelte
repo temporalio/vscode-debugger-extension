@@ -30,22 +30,24 @@
 </script>
 
 <main>
-  <vscode-panels {activeid}>
-    <vscode-panel-tab id="settings-tab">SETTINGS</vscode-panel-tab>
-    <vscode-panel-tab id="main-tab">MAIN</vscode-panel-tab>
-    {#if currentHistory}
-      <vscode-panel-tab id="history-tab">HISTORY</vscode-panel-tab>
-    {/if}
-    <vscode-panel-view id="settings-view">
-      <SettingsView {eventEmitter} />
-    </vscode-panel-view>
-    <vscode-panel-view id="main-view">
-      <MainView />
-    </vscode-panel-view>
-    {#if currentHistory}
-      <vscode-panel-view id="history-view">
-        <HistoryView history={currentHistory} {eventEmitter} />
+  {#key currentHistory}
+    <vscode-panels {activeid}>
+      <vscode-panel-tab id="settings-tab">SETTINGS</vscode-panel-tab>
+      <vscode-panel-tab id="main-tab">MAIN</vscode-panel-tab>
+      {#if currentHistory}
+        <vscode-panel-tab id="history-tab">HISTORY</vscode-panel-tab>
+      {/if}
+      <vscode-panel-view id="settings-view">
+        <SettingsView {eventEmitter} />
       </vscode-panel-view>
-    {/if}
-  </vscode-panels>
+      <vscode-panel-view id="main-view">
+        <MainView />
+      </vscode-panel-view>
+      {#if currentHistory}
+        <vscode-panel-view id="history-view">
+          <HistoryView history={currentHistory} {eventEmitter} />
+        </vscode-panel-view>
+      {/if}
+    </vscode-panels>
+  {/key}
 </main>
