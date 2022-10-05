@@ -1,27 +1,33 @@
 <script lang="ts">
   import type { WorkflowTask } from "../lib"
-  export let workflowTask: WorkflowTask
-  let icon: string
-  let hasBreakpoint = workflowTask.hasBreakpoint
-  $: {
-    hasBreakpoint
-    icon = hasBreakpoint ? "🔴" : "⚪"
-  }
+  import { CircleFilled } from "svelte-codicons"
 
-  function toggleBreakpoint(workflowTask: WorkflowTask) {
+  export let workflowTask: WorkflowTask
+  let hasBreakpoint = workflowTask.hasBreakpoint
+
+  function toggleBreakpoint() {
     console.log("toggleBreakpoint", workflowTask)
     hasBreakpoint = workflowTask.hasBreakpoint = !workflowTask.hasBreakpoint
   }
+
+  function handleKeyPress(e: KeyboardEvent) {
+    if (e.code === "Space" || e.code === "Enter") {
+      e.preventDefault()
+      toggleBreakpoint()
+    }
+  }
 </script>
 
-<input type="button" value={icon} on:click={toggleBreakpoint.bind(undefined, workflowTask)} />
+<div class="breakpoint" on:keypress={handleKeyPress} on:click={toggleBreakpoint}>
+  <CircleFilled
+    fill={hasBreakpoint ? "#FF0000" : "currentColor"}
+    role="checkbox"
+    aria-checked={hasBreakpoint}
+    tabindex={0} />
+</div>
 
 <style>
-  input {
-    background-color: #0000;
-    border: none;
-    border-radius: 50%;
-    padding: 0px 2px;
-    margin: 4px 2px;
+  .breakpoint {
+    margin: 0.25rem 0.25rem 0 0.25rem;
   }
 </style>

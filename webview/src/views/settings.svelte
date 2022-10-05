@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onDestroy } from "svelte"
+  import SubmitButton from "../components/submit-button.svelte"
+
   import type { ViewSettings } from "../lib"
 
   export let eventEmitter: EventTarget
   const settingsLoadedPromise = new Promise<ViewSettings>((resolve) => {
-    const listener = (e) => {
+    const listener = (e: Event) => {
       resolve((e as CustomEvent<ViewSettings>).detail)
     }
     eventEmitter.addEventListener("settingsLoaded", listener, { once: true })
@@ -15,7 +17,6 @@
    * Event listener for saving the settings
    */
   async function saveSettings(e: Event) {
-    // TODO: handle errors
     if (!(e.target instanceof HTMLFormElement)) {
       throw new TypeError("Expected form element")
     }
@@ -50,22 +51,38 @@
 
 <section>
   {#await settingsLoadedPromise}
-    Loading...
+    <vscode-progress-ring />
+    <p>Loading...</p>
   {:then settings}
     <p>Configure client connection (for downloading histories)</p>
-    <form on:submit|preventDefault={saveSettings}>
-      <label for="address">Address</label>
-      <input type="text" required value={settings.address} name="address" />
-      <label for="tls">TLS?</label>
-      <input type="checkbox" name="tls" checked={settings.tls} />
-      <div />
-      <label for="clientCert">Client cert {settings.hasClientCert ? "(present)" : ""}</label>
-      <input type="file" name="clientCert" />
-      <div />
-      <label for="clientPrivateKey">Client private key {settings.hasClientPrivateKey ? "(present)" : ""}</label>
-      <input type="file" name="clientPrivateKey" />
-      <div />
-      <button type="submit">Submit</button>
+    <form on:submit|once|preventDefault|stopPropagation={saveSettings}>
+      <vscode-text-field type="text" required value={settings.address}>Address</vscode-text-field>
+      <div class="checkbox">
+        <vscode-checkbox checked={settings.tls}>TLS?</vscode-checkbox>
+      </div>
+
+      <label for="client-cert">Client cert {settings.hasClientCert ? "(present)" : ""}</label>
+      <input id="client-cert" type="file" />
+
+      <label for="client-private-key">Client private key {settings.hasClientPrivateKey ? "(present)" : ""}</label>
+      <input id="client-private-key" type="file" />
+
+      <div class="submit-btn">
+        <SubmitButton>Submit</SubmitButton>
+      </div>
     </form>
   {/await}
 </section>
+
+<style>
+  label {
+    display: block;
+    margin: 0.5rem 0;
+  }
+  .checkbox {
+    display: block;
+  }
+  .submit-btn {
+    margin-top: 1.75rem;
+  }
+</style>

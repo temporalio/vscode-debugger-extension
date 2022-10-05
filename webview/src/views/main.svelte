@@ -1,4 +1,5 @@
 <script lang="ts">
+  import SubmitButton from "../components/submit-button.svelte"
   /**
    * Event listener for starting a session from workflow ID
    */
@@ -41,16 +42,32 @@
 
 <section>
   <p>Debug by ID</p>
-  <form on:submit|once|preventDefault={startFromWorkflowId}>
-    <input type="text" placeholder="namespace (default)" name="namespace" />
-    <input type="text" required placeholder="Workflow ID *" name="workflowId" />
-    <input type="text" placeholder="Run ID" name="runId" />
-    <input type="submit" value="Start" />
+  <form class="debug-by-id-form" on:submit|once|preventDefault={startFromWorkflowId}>
+    <vscode-text-field type="text" placeholder="Namespace (default)" name="namespace" />
+    <vscode-text-field type="text" required placeholder="Workflow ID *" name="workflowId" />
+    <vscode-text-field type="text" placeholder="Run ID" name="runId" />
+    <SubmitButton>Start</SubmitButton>
   </form>
-  <hr />
+  <vscode-divider role="presentation" />
   <p>Debug from history file</p>
   <form on:submit|once|preventDefault={startFromHistoryFile}>
-    <input type="file" required name="file" />
-    <input type="submit" value="Start" />
+    <label for="history-file" hidden>History file</label>
+    <input id="history-file" type="file" required />
+    <div class="debug-history-btn">
+      <SubmitButton>Start</SubmitButton>
+    </div>
   </form>
 </section>
+
+<style>
+  .debug-by-id-form {
+    display: flex;
+    margin-bottom: 0.5rem;
+  }
+  vscode-text-field {
+    margin-right: 0.625rem;
+  }
+  .debug-history-btn {
+    margin-top: 0.875rem;
+  }
+</style>

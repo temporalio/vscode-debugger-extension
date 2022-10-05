@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ArrowSmallLeft, ArrowSmallRight } from "svelte-codicons"
   import { onDestroy } from "svelte"
   import humanizeDuration from "humanize-duration"
   import { temporal } from "@temporalio/proto"
@@ -167,7 +168,7 @@
   }
 
   function labelTextForHistoryEvent(event: CategorizedEvent) {
-    const { eventType, category } = event
+    const { eventType } = event
 
     if (eventType === undefined || eventType === null) {
       throw new TypeError("Expected history event `eventType` to be defined")
@@ -178,11 +179,9 @@
       .split("_")
       .map((p) => `${p[0]}${p.substring(1).toLowerCase()}`)
       .join("")
-
-    const arrow = category === "COMMAND" ? "⇦" : "⇨"
     const details = labelDetailsForHistoryEvent(event)
 
-    return `${arrow} ${eventTypeName}${details ? " " + details : ""}`
+    return `${eventTypeName} ${details ?? ""}`
   }
 
   //setting title for workflow
@@ -228,22 +227,57 @@
   }
 </script>
 
-<title>Project Workflow panel</title>
-<h1>{title(history)}</h1>
-<h2>duration: {duration(history)}</h2>
-{#each workflowTasks as workflowTask}
-  <div class:current={workflowTask.startedEventId === currentWorkflowTaskStartedEventId}>
-    <BreakpointButton {workflowTask} />Workflow Task ({workflowTask.status})
-    {#each workflowTask.events as event}
-      <ul>
-        {labelTextForHistoryEvent(event)}
-      </ul>
-    {/each}
-  </div>
-{/each}
+<section>
+  <h1>{title(history)}</h1>
+  <p>Duration: {duration(history)}</p>
+  {#each workflowTasks as workflowTask, i}
+    <ul class:current={workflowTask.startedEventId === currentWorkflowTaskStartedEventId}>
+      <div class="workflow-task">
+        <BreakpointButton {workflowTask} />
+        <p>Workflow Task ({workflowTask.status})</p>
+      </div>
+      {#each workflowTask.events as event}
+        <li>
+          {#if event?.category === "COMMAND"}
+            <ArrowSmallLeft />
+          {:else}
+            <ArrowSmallRight />
+          {/if}
+          {labelTextForHistoryEvent(event)}
+        </li>
+      {/each}
+    </ul>
+    {#if i !== workflowTasks.length - 1}
+      <vscode-divider role="presentation" />
+    {/if}
+  {/each}
+</section>
 
 <style>
+  section {
+    width: 100%;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0.25rem 0 0.5rem 0;
+    margin: 0;
+  }
+  li {
+    display: flex;
+    align-items: center;
+    margin: 0.5rem 0 0 1.5rem;
+  }
+  vscode-divider {
+    margin: 0;
+  }
   .current {
     background-color: #ffff1c2e;
+  }
+  .workflow-task {
+    display: flex;
+    align-items: center;
+  }
+  .workflow-task p {
+    margin: 0;
   }
 </style>

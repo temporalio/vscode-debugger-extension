@@ -4,8 +4,8 @@
   import MainView from "./main.svelte"
   import SettingsView from "./settings.svelte"
 
-  type View = "main" | "history" | "settings"
-  let currentView: View = "main"
+  type PanelTab = "settings-tab" | "main-tab" | "history-tab"
+  let activeid: PanelTab = "main-tab"
   let currentHistory: temporal.api.history.v1.IHistory
   const eventEmitter = new EventTarget()
 
@@ -19,7 +19,7 @@
         break
       case "historyProcessed":
         currentHistory = temporal.api.history.v1.History.decode(event.data.history)
-        switchToHistoryView()
+        activeid = "history-tab"
         break
       default:
       // Notify unexpected error
@@ -27,31 +27,48 @@
   })
 
   // TODO: window.removeEventListener when component unmounts
-
-  function switchToHistoryView() {
-    currentView = "history"
-  }
-  function switchToSettingsView() {
-    currentView = "settings"
-  }
-  function switchToMainView() {
-    currentView = "main"
-  }
 </script>
 
 <main>
-  <input type="button" value="Settings" on:click={switchToSettingsView} disabled={currentView === "settings"} />
-  <input type="button" value="Main" on:click={switchToMainView} disabled={currentView === "main"} />
-  <input
-    type="button"
-    value="History"
-    on:click={switchToHistoryView}
-    disabled={currentView === "history" || currentHistory == null} />
-  {#if currentView === "main"}
-    <MainView />
-  {:else if currentView === "settings"}
-    <SettingsView {eventEmitter} />
-  {:else}
-    <HistoryView history={currentHistory} {eventEmitter} />
-  {/if}
+  {#key currentHistory}
+    <vscode-panels {activeid}>
+      <vscode-panel-tab id="settings-tab">SETTINGS</vscode-panel-tab>
+      <vscode-panel-tab id="main-tab">MAIN</vscode-panel-tab>
+      {#if currentHistory}
+        <vscode-panel-tab id="history-tab">HISTORY</vscode-panel-tab>
+      {/if}
+      <vscode-panel-view id="settings-view">
+        <SettingsView {eventEmitter} />
+      </vscode-panel-view>
+      <vscode-panel-view id="main-view">
+        <MainView />
+      </vscode-panel-view>
+      {#if currentHistory}
+        <vscode-panel-view id="history-view">
+          <HistoryView history={currentHistory} {eventEmitter} />
+        </vscode-panel-view>
+      {/if}
+    </vscode-panels>
+  {/key}
 </main>
+
+<style>
+  /* Styling based on <vscode-button appearance="secondary" /> */
+  :global(input::file-selector-button) {
+    background: var(--button-secondary-background);
+    color: var(--button-secondary-foreground);
+    outline: none;
+    font-family: var(--font-family);
+    font-size: var(--type-ramp-base-font-size);
+    line-height: var(--type-ramp-base-line-height);
+    border-radius: 2px;
+    fill: currentcolor;
+    cursor: pointer;
+    padding: var(--button-padding-vertical) var(--button-padding-horizontal);
+    border: calc(var(--border-width) * 1px) solid var(--button-border);
+  }
+
+  :global(input::file-selector-button:hover) {
+    background: var(--button-secondary-hover-background);
+  }
+</style>
