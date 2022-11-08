@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { onMount } from "svelte"
   import { ArrowSmallLeft, ArrowSmallRight } from "svelte-codicons"
-  import { onDestroy } from "svelte"
   import humanizeDuration from "humanize-duration"
   import { temporal } from "@temporalio/proto"
   import { tsToDate } from "@temporalio/common"
@@ -8,17 +8,23 @@
   import BreakpointButton from "../components/breakpoint-button.svelte"
 
   export let eventEmitter: EventTarget
-  const listener = ({ detail }: CustomEvent<number>) => {
-    currentWorkflowTaskStartedEventId = detail
-    vscode.postMessage({
-      type: "updateWorkflowTaskHasBreakpoint",
-      hasBreakpoint:
-        workflowTasks.find(({ startedEventId }) => startedEventId === currentWorkflowTaskStartedEventId)
-          ?.hasBreakpoint ?? false,
-    })
-  }
-  eventEmitter.addEventListener("currentWFTUpdated", listener as EventListener)
-  onDestroy(() => eventEmitter.removeEventListener("currentWFTUpdated", listener as EventListener))
+
+  onMount(() => {
+    const listener = ({ detail }: CustomEvent<number>) => {
+      currentWorkflowTaskStartedEventId = detail
+      vscode.postMessage({
+        type: "updateWorkflowTaskHasBreakpoint",
+        hasBreakpoint:
+          workflowTasks.find(({ startedEventId }) => startedEventId === currentWorkflowTaskStartedEventId)
+            ?.hasBreakpoint ?? false,
+      })
+    }
+    eventEmitter.addEventListener("currentWFTUpdated", listener as EventListener)
+
+    return () => {
+      eventEmitter.removeEventListener("currentWFTUpdated", listener as EventListener)
+    }
+  })
 
   export let history: History
 

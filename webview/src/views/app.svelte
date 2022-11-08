@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte"
   import { temporal } from "@temporalio/proto"
   import HistoryView from "./history.svelte"
   import MainView from "./main.svelte"
@@ -9,24 +10,29 @@
   let currentHistory: temporal.api.history.v1.IHistory
   const eventEmitter = new EventTarget()
 
-  window.addEventListener("message", (event) => {
-    switch (event.data.type) {
-      case "settingsLoaded":
-        eventEmitter.dispatchEvent(new CustomEvent("settingsLoaded", { detail: event.data.settings }))
-        break
-      case "currentWFTUpdated":
-        eventEmitter.dispatchEvent(new CustomEvent("currentWFTUpdated", { detail: event.data.eventId }))
-        break
-      case "historyProcessed":
-        currentHistory = temporal.api.history.v1.History.decode(event.data.history)
-        activeid = "history-tab"
-        break
-      default:
-      // Notify unexpected error
+  onMount(() => {
+    const listener = (event: MessageEvent) => {
+      switch (event.data.type) {
+        case "settingsLoaded":
+          eventEmitter.dispatchEvent(new CustomEvent("settingsLoaded", { detail: event.data.settings }))
+          break
+        case "currentWFTUpdated":
+          eventEmitter.dispatchEvent(new CustomEvent("currentWFTUpdated", { detail: event.data.eventId }))
+          break
+        case "historyProcessed":
+          currentHistory = temporal.api.history.v1.History.decode(event.data.history)
+          activeid = "history-tab"
+          break
+        default:
+        // TODO: Notify unexpected error
+      }
+    }
+    window.addEventListener("message", listener as EventListener)
+
+    return () => {
+      window.removeEventListener("message", listener as EventListener)
     }
   })
-
-  // TODO: window.removeEventListener when component unmounts
 </script>
 
 <main>
