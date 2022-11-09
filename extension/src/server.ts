@@ -62,4 +62,9 @@ export class Server {
     mustBeAddrInfo(addr)
     return `http://${addr.address}:${addr.port}`
   }
+
+  terminate(): void {
+    console.log(`Closing server on ${this.url}`)
+    this.server.close()
+  }
 }

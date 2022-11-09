@@ -5,6 +5,7 @@ import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
 import { Connection, LOCAL_TARGET } from "@temporalio/client"
+import { Server } from "./server"
 
 interface StartFromId {
   namespace?: string
@@ -39,13 +40,9 @@ async function fileType(path: string): Promise<vscode.FileType | undefined> {
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
 
-  static install(
-    extensionUri: vscode.Uri,
-    secretStorage: vscode.SecretStorage,
-    httpServerUrl: string,
-  ): HistoryDebuggerPanel {
+  static install(extensionUri: vscode.Uri, secretStorage: vscode.SecretStorage, server: Server): HistoryDebuggerPanel {
     if (this._instance === undefined) {
-      this._instance = new this(extensionUri, secretStorage, httpServerUrl)
+      this._instance = new this(extensionUri, secretStorage, server)
     }
     return this._instance
   }
@@ -88,7 +85,7 @@ export class HistoryDebuggerPanel {
   private constructor(
     protected readonly extensionUri: vscode.Uri,
     private readonly secretStorage: vscode.SecretStorage,
-    protected readonly httpServerUrl: string,
+    protected readonly server: Server,
   ) {
     // TODO: if "getting started" page is on the right, replace it
     this.panel = vscode.window.createWebviewPanel(HistoryDebuggerPanel.viewType, "Temporal", vscode.ViewColumn.Beside, {
@@ -102,19 +99,26 @@ export class HistoryDebuggerPanel {
     // Set the webview's initial html content
     this.update()
 
-    // Listen for when the panel is disposed
-    // This happens when the user closes the panel or when the panel is closed programatically
-    this.panel.onDidDispose(() => this.dispose(), null, this.disposables)
-
+    let reloadServer: http.Server | undefined = undefined
     // Start a local HTTP server to automatically reload the webview when rollup completes.
     if (process.env.TEMPORAL_DEBUGGER_EXTENSION_DEV_MODE) {
-      const server = http.createServer((_req, res) => {
+      reloadServer = http.createServer((_req, res) => {
         void vscode.commands.executeCommand("workbench.action.webview.reloadWebviewAction")
         res.writeHead(200, "OK")
         res.end()
       })
-      server.listen(55666, "127.0.0.1")
+      reloadServer.listen(55666, "127.0.0.1")
     }
+
+    // Listen for when the panel is disposed
+    // This happens when the user closes the panel or when the panel is closed programatically
+    this.panel.onDidDispose(async () => {
+      server.terminate()
+      if (reloadServer) {
+        reloadServer.close()
+      }
+      await this.dispose(), null, this.disposables
+    })
   }
 
   public async dispose(): Promise<void> {
@@ -316,7 +320,7 @@ export class HistoryDebuggerPanel {
       ...baseConfig,
       args: [replayerEndpoint],
       env: {
-        TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl,
+        TEMPORAL_DEBUGGER_PLUGIN_URL: this.server.url,
       },
     })
     await vscode.window.showInformationMessage("Starting debug session")
