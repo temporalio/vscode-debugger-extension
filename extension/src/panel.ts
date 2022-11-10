@@ -59,13 +59,12 @@ export class HistoryDebuggerPanel {
   public static readonly viewType = "temporal-debugger-plugin"
 
   private readonly panel: vscode.WebviewPanel
-  // TODO: this isn't populated, make sure everything is properly disposed
   private disposables: vscode.Disposable[] = []
   private updateWorkflowTaskHasBreakpoint = (_hasBreakpoint: boolean) => {
     // noop, to be set in the updateCurrentWFTStarted handler
   }
 
-  private timeouts: NodeJS.Timeout[] = [];
+  private timeouts: NodeJS.Timeout[] = []
 
   show(): void {
     this.panel.reveal(vscode.ViewColumn.Beside)
@@ -122,16 +121,13 @@ export class HistoryDebuggerPanel {
       }
 
       // Clear timeouts
-      this.timeouts.forEach(timeout => clearTimeout(timeout))
-      
+      this.timeouts.forEach((timeout) => clearTimeout(timeout))
+
       await this.dispose(), null, this.disposables
     })
   }
 
   public async dispose(): Promise<void> {
-    // TODO(bergundy): This is a mess, looks like we call panel.dispose here as well as register panel.onDidDispose
-    // above.
-
     // Clean up our resources
     this.panel.dispose()
 
