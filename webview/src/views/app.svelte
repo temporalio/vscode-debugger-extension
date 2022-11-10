@@ -24,7 +24,7 @@
           activeid = "history-tab"
           break
         default:
-        // TODO: Notify unexpected error
+          throw new Error("Unexpected event type")
       }
     }
     window.addEventListener("message", listener as EventListener)

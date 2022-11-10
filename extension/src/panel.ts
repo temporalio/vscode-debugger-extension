@@ -32,8 +32,7 @@ async function fileType(path: string): Promise<vscode.FileType | undefined> {
     const stat = await vscode.workspace.fs.stat(vscode.Uri.file(path))
     return stat.type
   } catch (err) {
-    // TODO: check exception and throw if unexpected
-    return undefined
+    throw new Error(`${err}`)
   }
 }
 

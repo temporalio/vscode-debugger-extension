@@ -9,7 +9,6 @@
     }
     const data = Object.fromEntries(new FormData(e.target))
 
-    // TODO: implement this
     vscode.postMessage({
       type: "startFromId",
       ...data,
