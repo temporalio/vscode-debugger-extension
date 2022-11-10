@@ -339,10 +339,9 @@ export class HistoryDebuggerPanel {
         <meta charset="UTF-8">
         <!--
           TODO: nonce was removed here because protobufjs uses code generation, see if we can bring it back.
-
-          Use a content security policy to only allow loading images from https or from our extension directory,
-          and only allow scripts that have a specific nonce.
+          Use a content security policy to only allow scripts that have a specific nonce.
         -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https:; script-src 'unsafe-inline' 'unsafe-eval' ${webview.cspSource}; style-src 'unsafe-inline' ${webview.cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="${styleUri}" rel="stylesheet">
       </head>
