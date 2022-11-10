@@ -87,14 +87,18 @@ export class HistoryDebuggerPanel {
     private readonly secretStorage: vscode.SecretStorage,
     protected readonly server: Server,
   ) {
-    // TODO: if "getting started" page is on the right, replace it
-    this.panel = vscode.window.createWebviewPanel(HistoryDebuggerPanel.viewType, "Temporal", vscode.ViewColumn.Beside, {
-      // Enable javascript in the webview
-      enableScripts: true,
-
-      // And restrict the webview to only loading content from our extension's compiled directory.
-      localResourceRoots: [vscode.Uri.joinPath(extensionUri, "webview/dist")],
-    })
+    const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined
+    this.panel = vscode.window.createWebviewPanel(
+      HistoryDebuggerPanel.viewType,
+      "Temporal",
+      column || vscode.ViewColumn.Beside,
+      {
+        // Enable javascript in the webview
+        enableScripts: true,
+        // And restrict the webview to only loading content from our extension's compiled directory.
+        localResourceRoots: [vscode.Uri.joinPath(extensionUri, "webview/dist")],
+      },
+    )
 
     // Set the webview's initial html content
     this.update()
