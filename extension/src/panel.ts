@@ -39,10 +39,13 @@ async function fileType(path: string): Promise<vscode.FileType | undefined> {
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
 
-  static install(extensionUri: vscode.Uri, secretStorage: vscode.SecretStorage, server: Server): HistoryDebuggerPanel {
+  static async install(extensionUri: vscode.Uri, secretStorage: vscode.SecretStorage): Promise<HistoryDebuggerPanel> {
     if (this._instance === undefined) {
+      const server = await Server.create()
+      console.log(`Server listening on ${server.url}`)
       this._instance = new this(extensionUri, secretStorage, server)
     }
+    this._instance.show()
     return this._instance
   }
 
