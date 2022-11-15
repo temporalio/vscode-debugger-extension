@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte"
-  import { ArrowSmallLeft, ArrowSmallRight } from "svelte-codicons"
+  import Icon from "../components/icon/icon.svelte"
   import humanizeDuration from "humanize-duration"
   import { temporal } from "@temporalio/proto"
   import { tsToDate } from "@temporalio/common"
@@ -245,9 +245,9 @@
       {#each workflowTask.events as event}
         <li>
           {#if event?.category === "COMMAND"}
-            <ArrowSmallLeft />
+            <Icon name="arrow-left" />
           {:else}
-            <ArrowSmallRight />
+            <Icon name="arrow-right" />
           {/if}
           {labelTextForHistoryEvent(event)}
         </li>
