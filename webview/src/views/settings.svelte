@@ -56,16 +56,16 @@
   {:then settings}
     <p>Configure client connection (for downloading histories)</p>
     <form on:submit|once|preventDefault|stopPropagation={saveSettings}>
-      <vscode-text-field type="text" required value={settings.address}>Address</vscode-text-field>
+      <vscode-text-field type="text" name="address" required value={settings.address}>Address</vscode-text-field>
       <div class="checkbox">
-        <vscode-checkbox checked={settings.tls}>TLS?</vscode-checkbox>
+        <vscode-checkbox name="tls" checked={settings.tls}>TLS?</vscode-checkbox>
       </div>
 
       <label for="client-cert">Client cert {settings.hasClientCert ? "(present)" : ""}</label>
-      <input id="client-cert" type="file" />
+      <input id="client-cert" type="file" name="clientCert" />
 
       <label for="client-private-key">Client private key {settings.hasClientPrivateKey ? "(present)" : ""}</label>
-      <input id="client-private-key" type="file" />
+      <input id="client-private-key" type="file" name="clientPrivateKey" />
 
       <div class="submit-btn">
         <SubmitButton>Submit</SubmitButton>

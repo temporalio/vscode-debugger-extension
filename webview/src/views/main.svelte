@@ -51,7 +51,7 @@
   <p>Debug from history file</p>
   <form on:submit|once|preventDefault={startFromHistoryFile}>
     <label for="history-file" hidden>History file</label>
-    <input id="history-file" type="file" required />
+    <input id="history-file" name="file" type="file" required />
     <div class="debug-history-btn">
       <SubmitButton>Start</SubmitButton>
     </div>
