@@ -1,5 +1,5 @@
 <!-- TODO: use vscode-button here instead when there is better form support -->
-<button class={$$props.class} type="submit"><slot /></button>
+<button {...$$props} type="submit"><slot /></button>
 
 <style>
   button {
@@ -23,5 +23,10 @@
 
   button:hover {
     background: var(--button-primary-hover-background);
+  }
+
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 </style>
