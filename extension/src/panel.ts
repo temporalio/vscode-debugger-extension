@@ -195,20 +195,24 @@ export class HistoryDebuggerPanel {
     let nextPageToken: Uint8Array | undefined = undefined
     const history: temporal.api.history.v1.IHistory = { events: [] }
     do {
-      const response: temporal.api.workflowservice.v1.GetWorkflowExecutionHistoryResponse =
-        await connection.workflowService.getWorkflowExecutionHistory({
-          namespace: namespace || "default",
-          execution: {
-            workflowId,
-            runId,
-          },
-          nextPageToken,
-        })
-      if (!response.history?.events) {
-        throw new Error("Empty history")
+      try {
+        const response: temporal.api.workflowservice.v1.GetWorkflowExecutionHistoryResponse =
+          await connection.workflowService.getWorkflowExecutionHistory({
+            namespace: namespace || "default",
+            execution: {
+              workflowId,
+              runId,
+            },
+            nextPageToken,
+          })
+        if (!response.history?.events) {
+          throw new Error("Empty history")
+        }
+        history.events?.push(...response.history.events)
+        nextPageToken = response.nextPageToken
+      } catch (err) {
+        throw new Error(`Unable to find workflow execution history for ${workflowId}`)
       }
-      history.events?.push(...response.history.events)
-      nextPageToken = response.nextPageToken
     } while (nextPageToken && nextPageToken.length > 0)
     return history
   }

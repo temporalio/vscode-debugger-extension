@@ -69,7 +69,7 @@
 
 <section>
   <p>Debug by ID</p>
-  <form class="debug-by-id-form" on:submit|once|preventDefault={startFromWorkflowId}>
+  <form class="debug-by-id-form" on:submit|preventDefault={startFromWorkflowId}>
     <vscode-text-field type="text" placeholder="Namespace (default)" name="namespace" />
     <vscode-text-field type="text" required placeholder="Workflow ID *" name="workflowId" />
     <vscode-text-field type="text" placeholder="Run ID" name="runId" />
@@ -77,7 +77,7 @@
   </form>
   <vscode-divider role="presentation" />
   <p>Debug from history file</p>
-  <form on:submit|once|preventDefault={startFromHistoryFile}>
+  <form on:submit|preventDefault={startFromHistoryFile}>
     <div class="debug-history-file">
       {#if loading}
         <vscode-progress-ring />

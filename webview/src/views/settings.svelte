@@ -55,7 +55,7 @@
     <p>Loading...</p>
   {:then settings}
     <p>Configure client connection (for downloading histories)</p>
-    <form on:submit|once|preventDefault|stopPropagation={saveSettings}>
+    <form on:submit|preventDefault={saveSettings}>
       <vscode-text-field type="text" name="address" required value={settings.address}>Address</vscode-text-field>
       <div class="checkbox">
         <vscode-checkbox name="tls" checked={settings.tls}>TLS?</vscode-checkbox>
