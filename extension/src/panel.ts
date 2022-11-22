@@ -27,15 +27,6 @@ interface EncodedSettings {
   base64ClientPrivateKey?: string
 }
 
-async function fileType(path: string): Promise<vscode.FileType | undefined> {
-  try {
-    const stat = await vscode.workspace.fs.stat(vscode.Uri.file(path))
-    return stat.type
-  } catch (err) {
-    throw new Error(`${err}`)
-  }
-}
-
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
 
@@ -283,24 +274,26 @@ export class HistoryDebuggerPanel {
       }
     }
 
-    const type = await fileType(replayerEntrypoint)
-    if (type === undefined) {
+    try {
+      const stat: vscode.FileStat = await vscode.workspace.fs.stat(vscode.Uri.file(replayerEntrypoint))
+      const { type } = stat
+      if (type === vscode.FileType.Directory) {
+        throw new Error(
+          `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is a folder, please provide a file instead`,
+        )
+      }
+      if (type === vscode.FileType.Unknown) {
+        throw new Error(
+          `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is of unknown type, please provide a file instead`,
+        )
+      }
+    } catch {
       if (!configuredAbsolutePath && (vscode.workspace.workspaceFolders?.length ?? 0) > 1) {
         throw new Error(
           `Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found (multiple workspace folders found, consider using an absolute path to disambiguate)`,
         )
       }
       throw new Error(`Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found`)
-    }
-    if (type === vscode.FileType.Directory) {
-      throw new Error(
-        `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is a folder, please provide a file instead`,
-      )
-    }
-    if (type === vscode.FileType.Unknown) {
-      throw new Error(
-        `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is of unknown type, please provide a file instead`,
-      )
     }
 
     return replayerEntrypoint
