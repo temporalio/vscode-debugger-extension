@@ -58,8 +58,6 @@ export class HistoryDebuggerPanel {
     // noop, to be set in the updateCurrentWFTStarted handler
   }
 
-  private timeouts: NodeJS.Timeout[] = []
-
   show(): void {
     this.panel.reveal(vscode.ViewColumn.Beside)
   }
@@ -67,8 +65,7 @@ export class HistoryDebuggerPanel {
   async updateCurrentWFTStarted(eventId: number): Promise<void> {
     const p = new Promise<boolean>((resolve, reject) => {
       this.updateWorkflowTaskHasBreakpoint = resolve
-      const timeoutObj = setTimeout(() => reject(new Error("Timed out waiting for response from webview")), 5000)
-      this.timeouts.push(timeoutObj)
+      setTimeout(() => reject(new Error("Timed out waiting for response from webview")), 5000)
     })
     await this.panel.webview.postMessage({ type: "currentWFTUpdated", eventId })
     const hasBreakpoint = await p
@@ -117,9 +114,6 @@ export class HistoryDebuggerPanel {
       if (reloadServer) {
         reloadServer.close()
       }
-
-      // Clear timeouts
-      this.timeouts.forEach((timeout) => clearTimeout(timeout))
 
       await this.dispose(), null, this.disposables
     })
