@@ -29,13 +29,14 @@ interface EncodedSettings {
 
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
-  protected static _server?: Server
+  protected static _server?: Promise<Server>
 
   static async install(extensionUri: vscode.Uri, secretStorage: vscode.SecretStorage): Promise<void> {
     if (this._server === undefined) {
-      this._server = await Server.create()
-      console.log(`Server listening on ${this._server.url}`)
-      this._instance = new this(extensionUri, secretStorage, this._server)
+      this._server = Server.create()
+      const server = await this._server
+      console.log(`Server listening on ${server.url}`)
+      this._instance = new this(extensionUri, secretStorage, server)
     }
 
     this._instance?.show()
