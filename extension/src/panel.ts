@@ -284,13 +284,16 @@ export class HistoryDebuggerPanel {
           `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is of unknown type, please provide a file instead`,
         )
       }
-    } catch {
-      if (!configuredAbsolutePath && (vscode.workspace.workspaceFolders?.length ?? 0) > 1) {
-        throw new Error(
-          `Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found (multiple workspace folders found, consider using an absolute path to disambiguate)`,
-        )
+    } catch (err: any) {
+      if (err?.code === "FileNotFound") {
+        if (!configuredAbsolutePath && (vscode.workspace.workspaceFolders?.length ?? 0) > 1) {
+          throw new Error(
+            `Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found (multiple workspace folders found, consider using an absolute path to disambiguate)`,
+          )
+        }
+        throw new Error(`Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found`)
       }
-      throw new Error(`Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found`)
+      throw new Error(`${err?.message ?? err}`)
     }
 
     return replayerEntrypoint
