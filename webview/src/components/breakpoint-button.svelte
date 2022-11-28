@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { WorkflowTask } from "../lib"
-  import { CircleFilled } from "svelte-codicons"
+  import Icon from "./icon/icon.svelte"
 
   export let workflowTask: WorkflowTask
   let hasBreakpoint = workflowTask.hasBreakpoint
@@ -19,7 +19,8 @@
 </script>
 
 <div class="breakpoint" on:keypress={handleKeyPress} on:click={toggleBreakpoint}>
-  <CircleFilled
+  <Icon
+    name="circle-filled"
     fill={hasBreakpoint ? "#FF0000" : "currentColor"}
     role="checkbox"
     aria-checked={hasBreakpoint}

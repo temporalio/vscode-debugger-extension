@@ -31,21 +31,21 @@ export class Server {
     app.get("/history", (_req, res) => {
       const { currentHistoryBuffer } = HistoryDebuggerPanel.instance
       if (!currentHistoryBuffer) {
-        res.writeHead(404).end({ error: "No current history available" })
+        res.status(404).send({ error: "No current history available" })
         return
       }
       res.end(currentHistoryBuffer)
     })
     app.post("/current-wft-started", async (req, res) => {
       if (!(typeof req.body === "object" && typeof req.body.eventId === "number")) {
-        res.writeHead(400).end({ error: "Bad request" })
+        res.status(400).send({ error: "Bad request" })
         return
       }
       const { eventId } = req.body
       try {
         await HistoryDebuggerPanel.instance.updateCurrentWFTStarted(eventId)
       } catch (error) {
-        res.writeHead(500).end({ error: `${error}` })
+        res.status(500).send({ error: `${error}` })
         return
       }
       res.end()
@@ -61,5 +61,10 @@ export class Server {
     const addr = this.server.address()
     mustBeAddrInfo(addr)
     return `http://${addr.address}:${addr.port}`
+  }
+
+  terminate(): void {
+    console.log(`Closing server on ${this.url}`)
+    this.server.close()
   }
 }

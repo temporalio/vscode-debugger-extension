@@ -5,6 +5,7 @@ import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
 import { Connection, LOCAL_TARGET } from "@temporalio/client"
+import { Server } from "./server"
 
 interface StartFromId {
   namespace?: string
@@ -26,28 +27,19 @@ interface EncodedSettings {
   base64ClientPrivateKey?: string
 }
 
-async function fileType(path: string): Promise<vscode.FileType | undefined> {
-  try {
-    const stat = await vscode.workspace.fs.stat(vscode.Uri.file(path))
-    return stat.type
-  } catch (err) {
-    // TODO: check exception and throw if unexpected
-    return undefined
-  }
-}
-
 export class HistoryDebuggerPanel {
   protected static _instance?: HistoryDebuggerPanel
+  protected static _server?: Promise<Server>
 
-  static install(
-    extensionUri: vscode.Uri,
-    secretStorage: vscode.SecretStorage,
-    httpServerUrl: string,
-  ): HistoryDebuggerPanel {
-    if (this._instance === undefined) {
-      this._instance = new this(extensionUri, secretStorage, httpServerUrl)
+  static async install(extensionUri: vscode.Uri, secretStorage: vscode.SecretStorage): Promise<void> {
+    if (this._server === undefined) {
+      this._server = Server.create()
+      const server = await this._server
+      console.log(`Server listening on ${server.url}`)
+      this._instance = new this(extensionUri, secretStorage, server)
     }
-    return this._instance
+
+    this._instance?.show()
   }
 
   static get instance(): HistoryDebuggerPanel {
@@ -62,7 +54,6 @@ export class HistoryDebuggerPanel {
   public static readonly viewType = "temporal-debugger-plugin"
 
   private readonly panel: vscode.WebviewPanel
-  // TODO: this isn't populated, make sure everything is properly disposed
   private disposables: vscode.Disposable[] = []
   private updateWorkflowTaskHasBreakpoint = (_hasBreakpoint: boolean) => {
     // noop, to be set in the updateCurrentWFTStarted handler
@@ -75,7 +66,6 @@ export class HistoryDebuggerPanel {
   async updateCurrentWFTStarted(eventId: number): Promise<void> {
     const p = new Promise<boolean>((resolve, reject) => {
       this.updateWorkflowTaskHasBreakpoint = resolve
-      // TODO: clear timeout if disposed
       setTimeout(() => reject(new Error("Timed out waiting for response from webview")), 5000)
     })
     await this.panel.webview.postMessage({ type: "currentWFTUpdated", eventId })
@@ -88,39 +78,49 @@ export class HistoryDebuggerPanel {
   private constructor(
     protected readonly extensionUri: vscode.Uri,
     private readonly secretStorage: vscode.SecretStorage,
-    protected readonly httpServerUrl: string,
+    protected readonly server: Server,
   ) {
-    // TODO: if "getting started" page is on the right, replace it
-    this.panel = vscode.window.createWebviewPanel(HistoryDebuggerPanel.viewType, "Temporal", vscode.ViewColumn.Beside, {
-      // Enable javascript in the webview
-      enableScripts: true,
-
-      // And restrict the webview to only loading content from our extension's compiled directory.
-      localResourceRoots: [vscode.Uri.joinPath(extensionUri, "webview/dist")],
-    })
+    const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined
+    this.panel = vscode.window.createWebviewPanel(
+      HistoryDebuggerPanel.viewType,
+      "Temporal",
+      column || vscode.ViewColumn.Beside,
+      {
+        // Enable javascript in the webview
+        enableScripts: true,
+        // And restrict the webview to only loading content from our extension's compiled directory.
+        localResourceRoots: [vscode.Uri.joinPath(extensionUri, "webview/dist")],
+      },
+    )
 
     // Set the webview's initial html content
     this.update()
 
-    // Listen for when the panel is disposed
-    // This happens when the user closes the panel or when the panel is closed programatically
-    this.panel.onDidDispose(() => this.dispose(), null, this.disposables)
-
+    let reloadServer: http.Server | undefined = undefined
     // Start a local HTTP server to automatically reload the webview when rollup completes.
     if (process.env.TEMPORAL_DEBUGGER_EXTENSION_DEV_MODE) {
-      const server = http.createServer((_req, res) => {
+      reloadServer = http.createServer((_req, res) => {
         void vscode.commands.executeCommand("workbench.action.webview.reloadWebviewAction")
         res.writeHead(200, "OK")
         res.end()
       })
-      server.listen(55666, "127.0.0.1")
+      reloadServer.listen(55666, "127.0.0.1")
     }
+
+    // Listen for when the panel is disposed
+    // This happens when the user closes the panel or when the panel is closed programatically
+    this.panel.onDidDispose(async () => {
+      // Close local servers
+      server.terminate()
+      if (reloadServer) {
+        reloadServer.close()
+      }
+
+      await this.dispose(), null, this.disposables
+    })
   }
 
   public async dispose(): Promise<void> {
-    // TODO(bergundy): This is a mess, looks like we call panel.dispose here as well as register panel.onDidDispose
-    // above.
-
     // Clean up our resources
     this.panel.dispose()
 
@@ -132,6 +132,7 @@ export class HistoryDebuggerPanel {
     }
 
     delete HistoryDebuggerPanel._instance
+    delete HistoryDebuggerPanel._server
   }
 
   private encodeSettings({ address, tls, clientCert, clientPrivateKey }: Settings): EncodedSettings {
@@ -182,20 +183,24 @@ export class HistoryDebuggerPanel {
     let nextPageToken: Uint8Array | undefined = undefined
     const history: temporal.api.history.v1.IHistory = { events: [] }
     do {
-      const response: temporal.api.workflowservice.v1.GetWorkflowExecutionHistoryResponse =
-        await connection.workflowService.getWorkflowExecutionHistory({
-          namespace: namespace || "default",
-          execution: {
-            workflowId,
-            runId,
-          },
-          nextPageToken,
-        })
-      if (!response.history?.events) {
-        throw new Error("Empty history")
+      try {
+        const response: temporal.api.workflowservice.v1.GetWorkflowExecutionHistoryResponse =
+          await connection.workflowService.getWorkflowExecutionHistory({
+            namespace: namespace || "default",
+            execution: {
+              workflowId,
+              runId,
+            },
+            nextPageToken,
+          })
+        if (!response.history?.events) {
+          throw new Error("Empty history")
+        }
+        history.events?.push(...response.history.events)
+        nextPageToken = response.nextPageToken
+      } catch (err) {
+        throw new Error(`Unable to find workflow execution history for ${workflowId}`)
       }
-      history.events?.push(...response.history.events)
-      nextPageToken = response.nextPageToken
     } while (nextPageToken && nextPageToken.length > 0)
     return history
   }
@@ -239,9 +244,8 @@ export class HistoryDebuggerPanel {
             break
           }
           case "startFromHistory": {
-            const buffer = Buffer.from(e.buffer)
             // TODO: support binary history too
-            const history = historyFromJSON(JSON.parse(buffer.toString()))
+            const history = historyFromJSON(e.history)
             await this.handleStartProject(history)
             break
           }
@@ -267,24 +271,29 @@ export class HistoryDebuggerPanel {
       }
     }
 
-    const type = await fileType(replayerEntrypoint)
-    if (type === undefined) {
-      if (!configuredAbsolutePath && (vscode.workspace.workspaceFolders?.length ?? 0) > 1) {
+    try {
+      const stat: vscode.FileStat = await vscode.workspace.fs.stat(vscode.Uri.file(replayerEntrypoint))
+      const { type } = stat
+      if (type === vscode.FileType.Directory) {
         throw new Error(
-          `Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found (multiple workspace folders found, consider using an absolute path to disambiguate)`,
+          `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is a folder, please provide a file instead`,
         )
       }
-      throw new Error(`Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found`)
-    }
-    if (type === vscode.FileType.Directory) {
-      throw new Error(
-        `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is a folder, please provide a file instead`,
-      )
-    }
-    if (type === vscode.FileType.Unknown) {
-      throw new Error(
-        `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is of unknown type, please provide a file instead`,
-      )
+      if (type === vscode.FileType.Unknown) {
+        throw new Error(
+          `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is of unknown type, please provide a file instead`,
+        )
+      }
+    } catch (err: any) {
+      if (err?.code === "FileNotFound") {
+        if (!configuredAbsolutePath && (vscode.workspace.workspaceFolders?.length ?? 0) > 1) {
+          throw new Error(
+            `Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found (multiple workspace folders found, consider using an absolute path to disambiguate)`,
+          )
+        }
+        throw new Error(`Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found`)
+      }
+      throw new Error(`${err?.message ?? err}`)
     }
 
     return replayerEntrypoint
@@ -316,7 +325,7 @@ export class HistoryDebuggerPanel {
       ...baseConfig,
       args: [replayerEndpoint],
       env: {
-        TEMPORAL_DEBUGGER_PLUGIN_URL: this.httpServerUrl,
+        TEMPORAL_DEBUGGER_PLUGIN_URL: this.server.url,
       },
     })
     await vscode.window.showInformationMessage("Starting debug session")
@@ -333,10 +342,9 @@ export class HistoryDebuggerPanel {
         <meta charset="UTF-8">
         <!--
           TODO: nonce was removed here because protobufjs uses code generation, see if we can bring it back.
-
-          Use a content security policy to only allow loading images from https or from our extension directory,
-          and only allow scripts that have a specific nonce.
+          Use a content security policy to only allow scripts that have a specific nonce.
         -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https:; script-src 'unsafe-inline' 'unsafe-eval' ${webview.cspSource}; style-src 'unsafe-inline' ${webview.cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="${styleUri}" rel="stylesheet">
       </head>
