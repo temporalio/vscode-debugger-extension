@@ -28,21 +28,20 @@ interface EncodedSettings {
 }
 
 export class HistoryDebuggerPanel {
-  protected static _instance?: HistoryDebuggerPanel
-  protected static _server?: Promise<Server>
+  protected static _instance?: Promise<HistoryDebuggerPanel>
 
   static async install(extensionUri: vscode.Uri, secretStorage: vscode.SecretStorage): Promise<void> {
-    if (this._server === undefined) {
-      this._server = Server.create()
-      const server = await this._server
-      console.log(`Server listening on ${server.url}`)
-      this._instance = new this(extensionUri, secretStorage, server)
+    if (this._instance === undefined) {
+      this._instance = Server.create().then((server: Server) => {
+        console.log(`Server listening on ${server.url}`)
+        return new this(extensionUri, secretStorage, server)
+      })
     }
-
-    this._instance?.show()
+    const instance = await this._instance
+    instance.show()
   }
 
-  static get instance(): HistoryDebuggerPanel {
+  static get instance(): Promise<HistoryDebuggerPanel> {
     if (this._instance === undefined) {
       throw new ReferenceError("HistoryDebuggerPanel not installed")
     }
@@ -132,7 +131,6 @@ export class HistoryDebuggerPanel {
     }
 
     delete HistoryDebuggerPanel._instance
-    delete HistoryDebuggerPanel._server
   }
 
   private encodeSettings({ address, tls, clientCert, clientPrivateKey }: Settings): EncodedSettings {
