@@ -28,13 +28,17 @@ export class Server {
   static async create(address = "127.0.0.1", port = 0): Promise<Server> {
     const app = express()
     app.use(express.json())
-    app.get("/history", (_req, res) => {
-      const { currentHistoryBuffer } = HistoryDebuggerPanel.instance
-      if (!currentHistoryBuffer) {
-        res.status(404).send({ error: "No current history available" })
-        return
+    app.get("/history", async (_req, res) => {
+      try {
+        const { currentHistoryBuffer } = await HistoryDebuggerPanel.instance
+        if (!currentHistoryBuffer) {
+          res.status(404).send({ error: "No current history available" })
+          return
+        }
+        res.end(currentHistoryBuffer)
+      } catch (error) {
+        res.status(500).send({ error: `${error}` })
       }
-      res.end(currentHistoryBuffer)
     })
     app.post("/current-wft-started", async (req, res) => {
       if (!(typeof req.body === "object" && typeof req.body.eventId === "number")) {
@@ -43,7 +47,8 @@ export class Server {
       }
       const { eventId } = req.body
       try {
-        await HistoryDebuggerPanel.instance.updateCurrentWFTStarted(eventId)
+        const instance = await HistoryDebuggerPanel.instance
+        await instance.updateCurrentWFTStarted(eventId)
       } catch (error) {
         res.status(500).send({ error: `${error}` })
         return

@@ -28,21 +28,21 @@ interface EncodedSettings {
 }
 
 export class HistoryDebuggerPanel {
-  protected static _instance?: HistoryDebuggerPanel
-  protected static _server?: Promise<Server>
+  protected static _instance?: Promise<HistoryDebuggerPanel>
 
   static async install(extensionUri: vscode.Uri, secretStorage: vscode.SecretStorage): Promise<void> {
-    if (this._server === undefined) {
-      this._server = Server.create()
-      const server = await this._server
-      console.log(`Server listening on ${server.url}`)
-      this._instance = new this(extensionUri, secretStorage, server)
+    if (this._instance === undefined) {
+      this._instance = Server.create().then((server: Server) => {
+        console.log(`Server listening on ${server.url}`)
+        return new this(extensionUri, secretStorage, server)
+      })
+    } else {
+      const instance = await this._instance
+      instance.show()
     }
-
-    this._instance?.show()
   }
 
-  static get instance(): HistoryDebuggerPanel {
+  static get instance(): Promise<HistoryDebuggerPanel> {
     if (this._instance === undefined) {
       throw new ReferenceError("HistoryDebuggerPanel not installed")
     }
@@ -80,18 +80,13 @@ export class HistoryDebuggerPanel {
     private readonly secretStorage: vscode.SecretStorage,
     protected readonly server: Server,
   ) {
-    const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined
-    this.panel = vscode.window.createWebviewPanel(
-      HistoryDebuggerPanel.viewType,
-      "Temporal",
-      column || vscode.ViewColumn.Beside,
-      {
-        // Enable javascript in the webview
-        enableScripts: true,
-        // And restrict the webview to only loading content from our extension's compiled directory.
-        localResourceRoots: [vscode.Uri.joinPath(extensionUri, "webview/dist")],
-      },
-    )
+    this.panel = vscode.window.createWebviewPanel(HistoryDebuggerPanel.viewType, "Temporal", vscode.ViewColumn.Beside, {
+      // Enable javascript in the webview
+      enableScripts: true,
+      // And restrict the webview to only loading content from our extension's compiled directory.
+      localResourceRoots: [vscode.Uri.joinPath(extensionUri, "webview/dist")],
+      retainContextWhenHidden: true,
+    })
 
     // Set the webview's initial html content
     this.update()
@@ -132,7 +127,6 @@ export class HistoryDebuggerPanel {
     }
 
     delete HistoryDebuggerPanel._instance
-    delete HistoryDebuggerPanel._server
   }
 
   private encodeSettings({ address, tls, clientCert, clientPrivateKey }: Settings): EncodedSettings {
@@ -285,7 +279,7 @@ export class HistoryDebuggerPanel {
         )
       }
     } catch (err: any) {
-      if (err?.code === "FileNotFound") {
+      if (err?.code === vscode.FileSystemError.FileNotFound.name) {
         if (!configuredAbsolutePath && (vscode.workspace.workspaceFolders?.length ?? 0) > 1) {
           throw new Error(
             `Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found (multiple workspace folders found, consider using an absolute path to disambiguate)`,
@@ -293,7 +287,7 @@ export class HistoryDebuggerPanel {
         }
         throw new Error(`Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found`)
       }
-      throw new Error(`${err?.message ?? err}`)
+      throw err
     }
 
     return replayerEntrypoint
