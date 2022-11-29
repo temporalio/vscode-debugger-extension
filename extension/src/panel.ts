@@ -36,9 +36,10 @@ export class HistoryDebuggerPanel {
         console.log(`Server listening on ${server.url}`)
         return new this(extensionUri, secretStorage, server)
       })
+    } else {
+      const instance = await this._instance
+      instance.show()
     }
-    const instance = await this._instance
-    instance.show()
   }
 
   static get instance(): Promise<HistoryDebuggerPanel> {
@@ -79,18 +80,13 @@ export class HistoryDebuggerPanel {
     private readonly secretStorage: vscode.SecretStorage,
     protected readonly server: Server,
   ) {
-    const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined
-    this.panel = vscode.window.createWebviewPanel(
-      HistoryDebuggerPanel.viewType,
-      "Temporal",
-      column || vscode.ViewColumn.Beside,
-      {
-        // Enable javascript in the webview
-        enableScripts: true,
-        // And restrict the webview to only loading content from our extension's compiled directory.
-        localResourceRoots: [vscode.Uri.joinPath(extensionUri, "webview/dist")],
-      },
-    )
+    this.panel = vscode.window.createWebviewPanel(HistoryDebuggerPanel.viewType, "Temporal", vscode.ViewColumn.Beside, {
+      // Enable javascript in the webview
+      enableScripts: true,
+      // And restrict the webview to only loading content from our extension's compiled directory.
+      localResourceRoots: [vscode.Uri.joinPath(extensionUri, "webview/dist")],
+      retainContextWhenHidden: true,
+    })
 
     // Set the webview's initial html content
     this.update()
