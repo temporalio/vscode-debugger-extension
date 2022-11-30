@@ -238,7 +238,6 @@ export class HistoryDebuggerPanel {
             break
           }
           case "startFromHistory": {
-            // TODO: support binary history too
             const history = historyFromJSON(e.history)
             await this.handleStartProject(history)
             break

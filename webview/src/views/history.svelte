@@ -169,7 +169,6 @@
         return `⏱🔥`
       case temporal.api.enums.v1.EventType.EVENT_TYPE_TIMER_CANCELED:
         return `⏱🚫`
-      // TODO: add more fancy stuff here
     }
   }
 
