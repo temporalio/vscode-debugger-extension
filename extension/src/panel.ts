@@ -1,5 +1,6 @@
 import * as vscode from "vscode"
 import fs from "node:fs/promises"
+import os from "node:os"
 import path from "node:path"
 import http from "node:http"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
@@ -315,11 +316,18 @@ export class HistoryDebuggerPanel {
     if (process.env.TEMPORAL_DEBUGGER_EXTENSION_DEV_MODE) {
       baseConfig.skipFiles.push("${workspaceFolder}/packages/worker/src/**")
     }
+    // NOTE: Adding NODE_PATH below in case ts-node is not an installed dependency in the workspace.
+    // From https://nodejs.org/api/modules.html#loading-from-the-global-folders:
+    // > Node.js will search those paths for modules **if they are not found elsewhere**.
+    // Our NODE_PATH will only be used as a fallback which is what we want.
+    const delim = os.platform() === "win32" ? ";" : ":"
+    const pathPrefix = process.env.NODE_PATH ? `${process.env.NODE_PATH ?? ""}${delim}` : ""
     await vscode.debug.startDebugging(workspace, {
       ...baseConfig,
       args: [replayerEndpoint],
       env: {
         TEMPORAL_DEBUGGER_PLUGIN_URL: this.server.url,
+        NODE_PATH: `${pathPrefix}${path.join(__dirname, "../../node_modules")}`,
       },
     })
     await vscode.window.showInformationMessage("Starting debug session")

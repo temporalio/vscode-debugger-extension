@@ -8,7 +8,7 @@ import json from "@rollup/plugin-json"
 import path from "path"
 
 export default {
-  input: path.join(__dirname, "webview/src/pages/app.ts"),
+  input: path.join(path.dirname(new URL(import.meta.url).pathname), "webview/src/pages/app.ts"),
   output: {
     sourcemap: true,
     format: "iife",
