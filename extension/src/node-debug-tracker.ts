@@ -28,7 +28,7 @@ export function registerDebugAdapterTrackerFactory(): vscode.Disposable {
             // Trigger stepping into / out of irrelevant sources.
             const { stackFrames } = m.body
             const frame = stackFrames[0]
-            if (frame?.source?.path.includes("packages/workflow/src/")) {
+            if (frame?.source?.path.includes("@temporalio/workflow/src/")) {
               m.body.stackFrames = []
               if (stackFrames.length === 1) {
                 ignoreErrors(vscode.commands.executeCommand("workbench.action.debug.stepInto"))

@@ -4,7 +4,11 @@
   "request": "launch",
   "runtimeExecutable": "node",
   "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
-  "skipFiles": ["<node_internals>/**", "**/node_modules/@temporalio/worker/src/**"],
+  "skipFiles": [
+    "<node_internals>/**",
+    "**/node_modules/@temporalio/worker/src/**",
+    "**/node_modules/@temporalio/worker/lib/**"
+  ],
   "internalConsoleOptions": "openOnSessionStart",
   "pauseForSourceMap": true
 }
