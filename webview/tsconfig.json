@@ -1,6 +1,10 @@
 {
   "extends": "@tsconfig/svelte/tsconfig.json",
   "include": ["./**/*"],
-  "exclude": ["../node_modules/*"],
-  "compilerOptions": { "types": ["svelte"], "strict": true }
+  "exclude": ["../node_modules/*", "**/*.spec.ts"],
+  "compilerOptions": {
+    "types": ["svelte"],
+    "strict": true,
+    "resolveJsonModule": true
+  }
 }
