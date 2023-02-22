@@ -38,7 +38,7 @@ The development flow is pretty standard for a Node.js / VS Code extension. Some 
 
 ### Debugging with VSCode
 
-- To launch the extension a [launch.json](./.vscode/launch.json) is provided that will run the extension in a new VS Code window (see [Run and Debug view](https://code.visualstudio.com/docs/editor/debugging#_run-and-debug-view)).
+- Use the provided [launch configuration](./.vscode/launch.json) to run the extension in a new VS Code window (see [Run and Debug view](https://code.visualstudio.com/docs/editor/debugging#_run-and-debug-view)).
 - In that window, open a Temporal project `Ctrl-K-O` (or `Cmd-K-O` on Mac) and create a file with `startDebugReplayer` (e.g. `./src/debug-replayer.ts`) as described above.
 - Use `Ctrl-Shift-P` (or `Cmd-Shift-P` on Mac) to open the panel using the command ("Temporal: Open Panel") mentioned above.
 
