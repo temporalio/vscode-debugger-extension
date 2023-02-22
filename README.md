@@ -35,8 +35,12 @@ The development flow is pretty standard for a Node.js / VS Code extension. Some 
 - Install dependencies `npm ci`
 - Build the extension and WebView: `npm run build`
 - Watch filesystem and rebuild on change: `npm run build.watch` (recommended)
+
+### Debugging with Vscode
 - To launch the extension, a [launch.json](./.vscode/launch.json) is provided that will run the extension in a new VS
-  Code window, in that window, you may use `Ctrl-Shift-P` (or `Cmd-Shift-P` on Mac) to open the panel using the command ("Temporal: Open Panel")
+  Code window
+- Open a project with `Ctrl-K-O` and create file `./src/debug-replayer.ts` with `startDebugReplayer` describe above
+- Use `Ctrl-Shift-P` (or `Cmd-Shift-P` on Mac) to open the panel using the command ("Temporal: Open Panel")
   mentioned above.
 
 One useful thing to note is that for local development, we've set up a local HTTP server and a rollup watch hook that
