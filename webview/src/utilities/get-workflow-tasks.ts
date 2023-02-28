@@ -76,13 +76,12 @@ function categorizeEvent(eventType: EventType): Category {
     // case EventType.EVENT_TYPE_WORKFLOW_PROPERTIES_MODIFIED_EXTERNALLY:
     // case EventType.EVENT_TYPE_ACTIVITY_PROPERTIES_MODIFIED_EXTERNALLY:
     default:
-      return unhandledEventType(eventType)
+      unhandledEventType(eventType)
   }
 }
 
-function unhandledEventType(eventType: never): Category {
-  console.log("Uncategorized event type: " + eventType)
-  return "EVENT"
+function unhandledEventType(eventType: never): never {
+  throw new Error("Uncategorized event type: " + eventType)
 }
 
 // Collecting workflow
