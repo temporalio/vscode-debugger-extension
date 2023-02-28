@@ -14,9 +14,8 @@ type Category =
 
 /**
  * Map an event type to a category.
- * This function is used to verify any new events are categorized and explictly does not specify a "default" branch.
  */
-function categorizeEvent(eventType: EventType | undefined): Category {
+function categorizeEvent(eventType: EventType): Category {
   switch (eventType) {
     // Ignore these for display purposes, we'll show this a status in the title
     case EventType.EVENT_TYPE_UNSPECIFIED:
@@ -76,7 +75,14 @@ function categorizeEvent(eventType: EventType | undefined): Category {
     // case EventType.EVENT_TYPE_WORKFLOW_UPDATE_COMPLETED:
     // case EventType.EVENT_TYPE_WORKFLOW_PROPERTIES_MODIFIED_EXTERNALLY:
     // case EventType.EVENT_TYPE_ACTIVITY_PROPERTIES_MODIFIED_EXTERNALLY:
+    default:
+      return unhandledEventType(eventType)
   }
+}
+
+function unhandledEventType(eventType: never): Category {
+  console.log("Uncategorized event type: " + eventType)
+  return "EVENT"
 }
 
 // Collecting workflow
@@ -92,8 +98,7 @@ export function getWorkflowTasks(history: temporal.api.history.v1.IHistory): Wor
     if (ev.eventType == null) {
       throw new TypeError("Got event with no type")
     }
-    // When new events are added categorizeEvent will return undefined
-    const category = categorizeEvent(ev.eventType) ?? "EVENT"
+    const category = categorizeEvent(ev.eventType)
     switch (category) {
       case "IGNORE":
         break
