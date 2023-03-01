@@ -84,7 +84,7 @@
     "build.watch": "concurrently \"npm run build.extension.watch\" \"npm run build.webview.watch\"",
     "format": "prettier --write .",
     "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check .",
-    "test": "TS_NODE_PROJECT=./webview/tsconfig.json mocha -r ts-node/register"
+    "test": "TS_NODE_PROJECT=./webview/tsconfig.json mocha \"webview/src/**/*.spec.ts\" -r ts-node/register"
   },
   "dependencies": {
     "@temporalio/client": "^1.5.2",
