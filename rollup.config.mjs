@@ -5,10 +5,10 @@ import css from "rollup-plugin-css-only"
 import sveltePreprocess from "svelte-preprocess"
 import typescript from "@rollup/plugin-typescript"
 import json from "@rollup/plugin-json"
-import path from "path"
+import { URL, fileURLToPath } from "url"
 
 export default {
-  input: path.join(path.dirname(new URL(import.meta.url).pathname), "webview/src/pages/app.ts"),
+  input: fileURLToPath(new URL("webview/src/pages/app.ts", import.meta.url)),
   output: {
     sourcemap: true,
     format: "iife",
