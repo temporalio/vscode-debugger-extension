@@ -14,9 +14,8 @@ type Category =
 
 /**
  * Map an event type to a category.
- * This function is used to verify any new events are categorized and explictly does not specify a "default" branch.
  */
-function categorizeEvent(eventType: EventType | undefined): Category {
+function categorizeEvent(eventType: EventType): Category {
   switch (eventType) {
     // Ignore these for display purposes, we'll show this a status in the title
     case EventType.EVENT_TYPE_UNSPECIFIED:
@@ -48,6 +47,9 @@ function categorizeEvent(eventType: EventType | undefined): Category {
     case EventType.EVENT_TYPE_MARKER_RECORDED:
     case EventType.EVENT_TYPE_TIMER_CANCELED:
     case EventType.EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES:
+    case EventType.EVENT_TYPE_WORKFLOW_UPDATE_ACCEPTED:
+    case EventType.EVENT_TYPE_WORKFLOW_UPDATE_COMPLETED:
+    case EventType.EVENT_TYPE_WORKFLOW_PROPERTIES_MODIFIED:
       return "COMMAND"
     // Completions and other non-command events go here
     case EventType.EVENT_TYPE_WORKFLOW_EXECUTION_STARTED:
@@ -69,14 +71,22 @@ function categorizeEvent(eventType: EventType | undefined): Category {
     case EventType.EVENT_TYPE_EXTERNAL_WORKFLOW_EXECUTION_SIGNALED:
     case EventType.EVENT_TYPE_SIGNAL_EXTERNAL_WORKFLOW_EXECUTION_FAILED:
     case EventType.EVENT_TYPE_REQUEST_CANCEL_EXTERNAL_WORKFLOW_EXECUTION_FAILED:
+    case EventType.EVENT_TYPE_WORKFLOW_UPDATE_REQUESTED:
+    case EventType.EVENT_TYPE_WORKFLOW_PROPERTIES_MODIFIED_EXTERNALLY:
+    case EventType.EVENT_TYPE_ACTIVITY_PROPERTIES_MODIFIED_EXTERNALLY:
       return "EVENT"
-    // TODO: add these when protos are updated
-    // case EventType.EVENT_TYPE_WORKFLOW_UPDATE_REQUESTED:
-    // case EventType.EVENT_TYPE_WORKFLOW_UPDATE_ACCEPTED:
-    // case EventType.EVENT_TYPE_WORKFLOW_UPDATE_COMPLETED:
-    // case EventType.EVENT_TYPE_WORKFLOW_PROPERTIES_MODIFIED_EXTERNALLY:
-    // case EventType.EVENT_TYPE_ACTIVITY_PROPERTIES_MODIFIED_EXTERNALLY:
+    default:
+      return unhandledEventType(eventType)
   }
+}
+
+/**
+ * Catch-all for uncategorized event types.
+ * Note that this function takes `never` which improves the error message when new enum variants are added.
+ */
+function unhandledEventType(eventType: never): Category {
+  console.error("Unhandled event type", eventType)
+  return "EVENT"
 }
 
 // Collecting workflow
@@ -92,8 +102,7 @@ export function getWorkflowTasks(history: temporal.api.history.v1.IHistory): Wor
     if (ev.eventType == null) {
       throw new TypeError("Got event with no type")
     }
-    // When new events are added categorizeEvent will return undefined
-    const category = categorizeEvent(ev.eventType) ?? "EVENT"
+    const category = categorizeEvent(ev.eventType)
     switch (category) {
       case "IGNORE":
         break
