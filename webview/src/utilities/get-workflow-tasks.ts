@@ -49,6 +49,7 @@ function categorizeEvent(eventType: EventType): Category {
     case EventType.EVENT_TYPE_UPSERT_WORKFLOW_SEARCH_ATTRIBUTES:
     case EventType.EVENT_TYPE_WORKFLOW_UPDATE_ACCEPTED:
     case EventType.EVENT_TYPE_WORKFLOW_UPDATE_COMPLETED:
+    case EventType.EVENT_TYPE_WORKFLOW_PROPERTIES_MODIFIED:
       return "COMMAND"
     // Completions and other non-command events go here
     case EventType.EVENT_TYPE_WORKFLOW_EXECUTION_STARTED:
@@ -71,17 +72,21 @@ function categorizeEvent(eventType: EventType): Category {
     case EventType.EVENT_TYPE_SIGNAL_EXTERNAL_WORKFLOW_EXECUTION_FAILED:
     case EventType.EVENT_TYPE_REQUEST_CANCEL_EXTERNAL_WORKFLOW_EXECUTION_FAILED:
     case EventType.EVENT_TYPE_WORKFLOW_UPDATE_REQUESTED:
-    case EventType.EVENT_TYPE_WORKFLOW_PROPERTIES_MODIFIED:
     case EventType.EVENT_TYPE_WORKFLOW_PROPERTIES_MODIFIED_EXTERNALLY:
     case EventType.EVENT_TYPE_ACTIVITY_PROPERTIES_MODIFIED_EXTERNALLY:
       return "EVENT"
     default:
-      unhandledEventType(eventType)
+      return unhandledEventType(eventType)
   }
 }
 
-function unhandledEventType(eventType: never): never {
-  throw new Error("Uncategorized event type: " + eventType)
+/**
+ * Catch-all for uncategorized event types.
+ * Note that this function takes `never` which improves the error message when new enum variants are added.
+ */
+function unhandledEventType(eventType: never): Category {
+  console.error("Unhandled event type", eventType)
+  return "EVENT"
 }
 
 // Collecting workflow

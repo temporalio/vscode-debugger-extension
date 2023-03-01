@@ -1,4 +1,4 @@
-name: Lint
+name: Continuous Integration
 
 on:
   # Trigger the workflow on push or pull request,
@@ -11,8 +11,8 @@ on:
       - main
 
 jobs:
-  run-linters:
-    name: Run linters
+  build-lint-test:
+    name: Build, Lint, Test
     runs-on: ubuntu-latest
 
     steps:
@@ -30,3 +30,9 @@ jobs:
 
       - name: Run linters
         run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
