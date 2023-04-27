@@ -4,11 +4,8 @@
   "description": "Temporal VSCode Debugger extension",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.68.0"
+    "vscode": "^1.77.3"
   },
-  "activationEvents": [
-    "onCommand:temporal.debugger-extension.open-panel"
-  ],
   "main": "./extension/dist/extension.js",
   "contributes": {
     "commands": [
@@ -51,7 +48,7 @@
     "@types/humanize-duration": "^3.27.1",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.18",
-    "@types/vscode": "^1.74.0",
+    "@types/vscode": "^1.77.0",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.49.0",
     "@vscode/test-electron": "^2.2.3",
