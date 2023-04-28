@@ -4,7 +4,7 @@
   "description": "Temporal VSCode Debugger extension",
   "repository": {
     "type": "git",
-    "url": "https://github.com/temporalio/vscode-debugger-plugin"
+    "url": "https://github.com/temporalio/vscode-debugger-extension"
   },
   "version": "0.0.1",
   "engines": {
