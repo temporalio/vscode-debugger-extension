@@ -1,7 +1,7 @@
 {
-  "name": "temporal-vscode-extension",
-  "displayName": "Temporal VS Code extension",
-  "description": "Temporal VS Code extension",
+  "name": "temporalio",
+  "displayName": "Temporal.io",
+  "description": "Debug workflows by their ID or history file. Set breakpoints in code or on history events.",
   "repository": {
     "type": "git",
     "url": "https://github.com/temporalio/vscode-debugger-extension"
