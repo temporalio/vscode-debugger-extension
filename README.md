@@ -1,42 +1,70 @@
-## Temporal VS Code extension
+<h1 align="center">
+  <br>
+    <img src="https://assets.temporal.io/w/vscode-icon.png" alt="Temporal" width="128">
+  <br>
+  Temporal for VS Code
+  <br>
+  <br>
+</h1>
 
-This repo contains the code for the Temporal VS Code extension.
+<h4 align="center">Debug TypeScript workflows by their ID or history file. Set breakpoints in code or on history events.</h4>
 
-The extension's purpose is to help debug workflows and reduce the amount of boilerplate required to start a workflow replayer.
+## Usage
 
-The extension exposes a single command: "Temporal: Open Panel" that (as the name suggests) opens a WebView panel.
-The panel consists of these three views:
+- Install [the extension](https://marketplace.visualstudio.com/items?itemName=temporal-technologies.temporalio)
+- Add a file at `src/debug-replayer.ts` (or can [configure](#entrypoint) an alternate location):
 
-1. Main view - Start debugging a workflow by ID or from a history file
-2. History view - Visualize the workflow history and highlight the currently processing workflow task
-3. Settings view - Configure a connection to a Temporal server for downloading histories
+  ```ts
+  import { startDebugReplayer } from '@temporalio/worker'
 
-In order to launch the replay, the extension uses a template launch config (see [this one](./configs/node-template.json)
-for TypeScript) and will look up a TypeScript or JavaScript file specified in the `temporal.replayerEntrypoint`
-workspace setting. The entrypoint specifies how to start the replay worker (e.g. which workflows to run) as shown below
-for TypeScript:
+  startDebugReplayer({
+    workflowsPath: require.resolve('./workflows'),
+  })
+  ```
 
-```ts
-import { startDebugReplayer } from "@temporalio/worker"
+- Edit the `'./workflows'` path to match the location of your workflows file
+- Run `Temporal: Open Panel` (use `Cmd/Ctrl-Shift-P` to open Command Palette)
+- Enter a Workflow Id or choose a history JSON file
+- Click `Start`
+- The Workflow Execution will start replaying and hit a breakpoint set on the first event
+- Set breakpoints in code or on history events
+- Hit play or step forward
+- To restart from the beginning, click the `MAIN` tab and `Start` again
 
-startDebugReplayer({
-  workflowsPath: require.resolve("./workflows"),
-})
-```
+## Configuration
 
-### Supported languages
+### Server
 
-Currently only TypeScript is supported but more languages should be relatively easy to add.
+When starting a replay by Workflow Id, the extension downloads the history from the Temporal Server. By default, it connects to a Server running on the default `localhost:7233`.
 
-## Development
+To connect to a different Server:
+
+- Open the `SETTINGS` tab
+- Edit the `Address` field
+- If you're using TLS (e.g. to connect to Temporal Cloud), check the box and select your client cert and key
+
+### Entrypoint
+
+By default, the extension will look for the file that calls [`startDebugReplayer`](https://typescript.temporal.io/api/namespaces/worker#startdebugreplayer) at `src/debug-replayer.ts`. To use a different TypeScript or JavaScript file, set the `temporal.replayerEntrypoint` config:
+
+- Open or create `.vscode/settings.json`
+- Add the config field:
+
+  ```json
+  {
+    "temporal.replayerEntrypoint": "test/different-file.ts"
+  }
+  ```
+
+## Contributing
 
 The development flow is pretty standard for a Node.js / VS Code extension. Some useful commands listed below:
 
-- Install dependencies `npm ci`
+- Install dependencies: `npm ci`
 - Build the extension and WebView: `npm run build`
 - Watch filesystem and rebuild on change: `npm run build.watch` (recommended)
 
-### Debugging with VSCode
+### Debugging this extension
 
 - Use the provided [launch configuration](./.vscode/launch.json) to run the extension in a new VS Code window (see [Run and Debug view](https://code.visualstudio.com/docs/editor/debugging#_run-and-debug-view)).
 - In that window, open a Temporal project `Ctrl-K-O` (or `Cmd-K-O` on Mac) and create a file with `startDebugReplayer` (e.g. `./src/debug-replayer.ts`) as described above.
