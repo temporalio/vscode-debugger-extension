@@ -15,10 +15,10 @@
 - Add a file at `src/debug-replayer.ts` (or can [configure](#entrypoint) an alternate location):
 
   ```ts
-  import { startDebugReplayer } from '@temporalio/worker'
+  import { startDebugReplayer } from "@temporalio/worker"
 
   startDebugReplayer({
-    workflowsPath: require.resolve('./workflows'),
+    workflowsPath: require.resolve("./workflows"),
   })
   ```
 
