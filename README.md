@@ -80,7 +80,5 @@ view. For example to switch to the history view you may use something like:
 await this.panel.webview.postMessage({ type: "historyProcessed", history })
 ```
 
-The repository is lacking tests, those should be added before releasing to the VS Code marketplace.
-
 The repository uses `eslint` and `prettier` to maintain consistent a style, run validation with `npm run lint` and
 auto-format code with `npm run format`.
