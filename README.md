@@ -56,6 +56,8 @@ By default, the extension will look for the file that calls [`startDebugReplayer
   }
   ```
 
+*Note that the file must be within your project directory so it can find `node_modules/`.*
+
 ## Contributing
 
 The development flow is pretty standard for a Node.js / VS Code extension. Some useful commands listed below:
