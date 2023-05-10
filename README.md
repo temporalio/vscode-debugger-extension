@@ -56,7 +56,7 @@ By default, the extension will look for the file that calls [`startDebugReplayer
   }
   ```
 
-*Note that the file must be within your project directory so it can find `node_modules/`.*
+_Note that the file must be within your project directory so it can find `node_modules/`._
 
 ## Contributing
 
