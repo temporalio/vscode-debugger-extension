@@ -91,9 +91,9 @@
     "test": "TS_NODE_PROJECT=./webview/tsconfig.json mocha \"webview/src/**/*.spec.ts\" -r ts-node/register"
   },
   "dependencies": {
-    "@temporalio/client": "^1.5.2",
-    "@temporalio/common": "^1.5.2",
-    "@temporalio/proto": "^1.5.2",
+    "@temporalio/client": "^1.7.4",
+    "@temporalio/common": "^1.7.4",
+    "@temporalio/proto": "^1.7.4",
     "@vscode/webview-ui-toolkit": "^1.2.1",
     "express": "^4.18.2"
   }
