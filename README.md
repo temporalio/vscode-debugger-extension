@@ -1,13 +1,14 @@
 <h1 align="center">
-  <br>
-    <img src="https://assets.temporal.io/w/vscode-icon.png" alt="Temporal" width="128">
-  <br>
   Temporal for VS Code
+  <br>
+  <br>
+  <br>
+    <img src="https://assets.temporal.io/w/vscode.png" alt="Temporal for VS Code">
   <br>
   <br>
 </h1>
 
-<h4 align="center">Debug TypeScript workflows by their ID or history file. Set breakpoints in code or on history events.</h4>
+<h4 align="center">Debug TypeScript workflows by their ID or history file.<br>Set breakpoints in code or on history events.</h4>
 
 ## Usage
 
@@ -29,7 +30,7 @@
 - The Workflow Execution will start replaying and hit a breakpoint set on the first event
 - Set breakpoints in code or on history events
 - Hit play or step forward
-- To restart from the beginning, click the `MAIN` tab and `Start` again
+- To restart from the beginning, click the green restart icon at the top of the screen, or if the debug session has ended, go back to the `MAIN` tab and `Start` again
 
 ## Configuration
 
