@@ -27,6 +27,9 @@ await this.panel.webview.postMessage({ type: "historyProcessed", history })
 
 ## Release
 
-- Checkout latest main
+- `git checkout main`
+- `git pull`
 - Update [CHANGELOG.md](CHANGELOG.md)
+- `git add CHANGELOG.md`
+- `npm release <patch|minor|major>`
 - `git push origin release`
