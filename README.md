@@ -2,13 +2,12 @@
   Temporal for VS Code
   <br>
   <br>
-  <br>
     <img src="https://assets.temporal.io/w/vscode.png" alt="Temporal for VS Code">
-  <br>
   <br>
 </h1>
 
-<h4 align="center">Debug TypeScript workflows by their ID or history file.<br>Set breakpoints in code or on history events.</h4>
+<h4 align="center">Debug TypeScript workflows by their ID or history file.</h4>
+<h4 align="center">Set breakpoints in code or on history events.</h4>
 
 ## Usage
 
@@ -61,27 +60,4 @@ _Note that the file must be within your project directory so it can find `node_m
 
 ## Contributing
 
-The development flow is pretty standard for a Node.js / VS Code extension. Some useful commands listed below:
-
-- Install dependencies: `npm ci`
-- Build the extension and WebView: `npm run build`
-- Watch filesystem and rebuild on change: `npm run build.watch` (recommended)
-
-### Debugging this extension
-
-- Use the provided [launch configuration](./.vscode/launch.json) to run the extension in a new VS Code window (see [Run and Debug view](https://code.visualstudio.com/docs/editor/debugging#_run-and-debug-view)).
-- In that window, open a Temporal project `Ctrl-K-O` (or `Cmd-K-O` on Mac) and create a file with `startDebugReplayer` (e.g. `./src/debug-replayer.ts`) as described above.
-- Use `Ctrl-Shift-P` (or `Cmd-Shift-P` on Mac) to open the panel using the command ("Temporal: Open Panel") mentioned above.
-
-One useful thing to note is that for local development, we've set up a local HTTP server and a rollup watch hook that
-will reload the WebView after bundling is complete. The HTTP handler is defined in [the panel
-code](./extension/src/panel.ts) - look for `TEMPORAL_DEBUGGER_EXTENSION_DEV_MODE` in that file. When working on a
-specific view, it may be useful to send events to the webview from the handler to quickly get the app state to that
-view. For example to switch to the history view you may use something like:
-
-```ts
-await this.panel.webview.postMessage({ type: "historyProcessed", history })
-```
-
-The repository uses `eslint` and `prettier` to maintain consistent a style, run validation with `npm run lint` and
-auto-format code with `npm run format`.
+Thank you to [all who have contributed](https://github.com/temporalio/vscode-debugger-extension/graphs/contributors) 🙏😊. If you'd like to contribute, check out our [issues](https://github.com/temporalio/vscode-debugger-extension/issues) and [CONTRIBUTING.md](https://github.com/temporalio/vscode-debugger-extension/blob/main/CONTRIBUTING.md).
