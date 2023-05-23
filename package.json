@@ -1,19 +1,38 @@
 {
   "name": "temporalio",
   "displayName": "Temporal.io",
+  "version": "0.0.1",
   "description": "Debug workflows by their ID or history file. Set breakpoints in code or on history events.",
+  "categories": [
+    "Debuggers",
+    "Visualization"
+  ],
+  "keywords": [
+    "temporal",
+    "workflow",
+    "debugger",
+    "vscode"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/temporalio/vscode-debugger-extension"
   },
-  "publisher": "temporal-technologies",
-  "icon": "logo.png",
-  "version": "0.0.1",
   "license": "MIT",
-  "engines": {
-    "vscode": "^1.77.3"
-  },
+  "publisher": "temporal-technologies",
   "main": "./extension/dist/extension.js",
+  "scripts": {
+    "build": "concurrently \"npm run build.extension\" \"npm run build.webview\"",
+    "build.extension": "tsc --build extension",
+    "build.extension.watch": "tsc --build --watch extension",
+    "build.watch": "concurrently \"npm run build.extension.watch\" \"npm run build.webview.watch\"",
+    "build.webview": "rollup -c",
+    "build.webview.watch": "rollup -c -w --watch.onEnd \"node scripts/reload-webview.mjs\"",
+    "format": "prettier --write .",
+    "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check .",
+    "postversion": "git push && git push --tags",
+    "publish": "vsce publish",
+    "test": "TS_NODE_PROJECT=./webview/tsconfig.json mocha \"webview/src/**/*.spec.ts\" -r ts-node/register"
+  },
   "contributes": {
     "commands": [
       {
@@ -32,16 +51,13 @@
       }
     }
   },
-  "categories": [
-    "Debuggers",
-    "Visualization"
-  ],
-  "keywords": [
-    "temporal",
-    "workflow",
-    "debugger",
-    "vscode"
-  ],
+  "dependencies": {
+    "@temporalio/client": "^1.7.4",
+    "@temporalio/common": "^1.7.4",
+    "@temporalio/proto": "^1.7.4",
+    "@vscode/webview-ui-toolkit": "^1.2.1",
+    "express": "^4.18.2"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-json": "^6.0.0",
@@ -59,6 +75,7 @@
     "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.49.0",
     "@vscode/test-electron": "^2.2.3",
+    "@vscode/vsce": "^2.19.0",
     "chai": "^4.3.7",
     "concurrently": "^7.6.0",
     "eslint": "^8.33.0",
@@ -69,6 +86,7 @@
     "mocha": "^10.2.0",
     "nodemon": "^2.0.20",
     "prettier": "2.8.3",
+    "release": "^6.3.1",
     "rollup": "^3.12.0",
     "rollup-plugin-css-only": "^4.3.0",
     "rollup-plugin-svelte": "^7.1.0",
@@ -79,22 +97,8 @@
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
   },
-  "scripts": {
-    "build.extension": "tsc --build extension",
-    "build.extension.watch": "tsc --build --watch extension",
-    "build.webview": "rollup -c",
-    "build.webview.watch": "rollup -c -w --watch.onEnd \"node scripts/reload-webview.mjs\"",
-    "build": "concurrently \"npm run build.extension\" \"npm run build.webview\"",
-    "build.watch": "concurrently \"npm run build.extension.watch\" \"npm run build.webview.watch\"",
-    "format": "prettier --write .",
-    "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check .",
-    "test": "TS_NODE_PROJECT=./webview/tsconfig.json mocha \"webview/src/**/*.spec.ts\" -r ts-node/register"
+  "engines": {
+    "vscode": "^1.77.3"
   },
-  "dependencies": {
-    "@temporalio/client": "^1.7.4",
-    "@temporalio/common": "^1.7.4",
-    "@temporalio/proto": "^1.7.4",
-    "@vscode/webview-ui-toolkit": "^1.2.1",
-    "express": "^4.18.2"
-  }
+  "icon": "logo.png"
 }

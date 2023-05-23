@@ -1,0 +1,17 @@
+name: Release to VS Code Extension Marketplace
+
+on:
+  push:
+    branches: ["release"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm publish
+        env:
+          VSCE_PAT: ${{secrets.VSCODE_MARKETPLACE_PERSONAL_ACCESS_TOKEN}}
