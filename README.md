@@ -11,6 +11,8 @@
 
 ## Usage
 
+Watch [the demo](https://www.youtube.com/watch?v=3IjQde9HMNY) or follow these instructions:
+
 - Install [the extension](https://marketplace.visualstudio.com/items?itemName=temporal-technologies.temporalio)
 - Add a file at `src/debug-replayer.ts` (or can [configure](#entrypoint) an alternate location):
 
