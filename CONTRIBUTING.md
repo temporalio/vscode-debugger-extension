@@ -32,4 +32,4 @@ await this.panel.webview.postMessage({ type: "historyProcessed", history })
 - Update [CHANGELOG.md](CHANGELOG.md)
 - `git add CHANGELOG.md`
 - `npm version <patch|minor|major>`
-- `git push origin release`
+- `git push origin main:release`
