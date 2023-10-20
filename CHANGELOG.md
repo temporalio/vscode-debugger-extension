@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.1] - 2023-10-20
+
+- Fix issue with debugger not going to workflow code ([#53](https://github.com/temporalio/vscode-debugger-extension/pull/53))
+
 ## [0.1.0] - 2023-05-18
 
 ### Bug Fixes
