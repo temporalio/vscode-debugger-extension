@@ -1,7 +1,7 @@
 {
   "name": "temporalio",
   "displayName": "Temporal.io",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Debug workflows by their ID or history file. Set breakpoints in code or on history events.",
   "categories": [
     "Debuggers",
