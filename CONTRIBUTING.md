@@ -33,3 +33,4 @@ await this.panel.webview.postMessage({ type: "historyProcessed", history })
 - `git add CHANGELOG.md`
 - `npm version <patch|minor|major>`
 - `git push origin main:release`
+- Create a new PR based off the branch `release` and merge it
