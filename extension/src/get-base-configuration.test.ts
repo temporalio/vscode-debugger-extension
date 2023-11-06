@@ -3,7 +3,7 @@ import { getBaseConfiguration } from "./get-base-configuration"
 import * as moduleType from "./is-esm"
 
 vi.mock("./is-esm", async () => ({
-  isESM: vi.fn().mockResolvedValue(false),
+  supportsESM: vi.fn().mockResolvedValue(false),
 }))
 
 describe("getBaseConfiguration", () => {
@@ -14,7 +14,7 @@ describe("getBaseConfiguration", () => {
   })
 
   it("returns the correct configuration for ESM environments", async () => {
-    vi.mocked(moduleType).isESM.mockResolvedValueOnce(true)
+    vi.mocked(moduleType).supportsESM.mockResolvedValueOnce(true)
     const { runtimeArgs } = await getBaseConfiguration()
 
     expect(runtimeArgs).toEqual(["--loader=ts-node/esm"])

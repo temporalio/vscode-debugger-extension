@@ -1,7 +1,7 @@
 import type * as vscode from "vscode"
-import { isESM } from "./is-esm"
+import { supportsESM } from "./is-esm"
 
-const config = {
+const configuration = {
   name: "Launch Program",
   type: "node",
   request: "launch",
@@ -19,7 +19,9 @@ const config = {
 } satisfies vscode.DebugConfiguration
 
 export const getBaseConfiguration = async (): Promise<vscode.DebugConfiguration> => {
-  const runtimeArgs = (await isESM()) ? ["--loader=ts-node/esm"] : ["--nolazy", "-r", "ts-node/register/transpile-only"]
+  const runtimeArgs = (await supportsESM())
+    ? ["--loader=ts-node/esm"]
+    : ["--nolazy", "-r", "ts-node/register/transpile-only"]
 
-  return { ...config, runtimeArgs }
+  return { ...configuration, runtimeArgs }
 }

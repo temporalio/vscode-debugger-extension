@@ -25,12 +25,13 @@ export async function getModuleType(fallback: ModuleType = "commonjs"): Promise<
   return fallback
 }
 
-export const isESM = async (): Promise<boolean> => {
+const supports = async (type: ModuleType): Promise<boolean> => {
   try {
-    return (await getModuleType()) === "module"
+    return (await getModuleType()) === type
   } catch (e) {
     return false
   }
 }
 
-export default isESM
+export const supportsESM = (): Promise<boolean> => supports("module")
+export const supportsCommonJS = (): Promise<boolean> => supports("commonjs")
