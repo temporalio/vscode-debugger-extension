@@ -1,5 +1,4 @@
 import * as vscode from "vscode"
-import fs from "node:fs/promises"
 import os from "node:os"
 import path from "node:path"
 import http from "node:http"
@@ -7,6 +6,7 @@ import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
 import { temporal } from "@temporalio/proto"
 import { Connection, LOCAL_TARGET } from "@temporalio/client"
 import { Server } from "./server"
+import { getBaseConfiguration } from "./get-base-configuration"
 
 interface StartFromId {
   namespace?: string
@@ -309,8 +309,8 @@ export class HistoryDebuggerPanel {
     } else {
       await vscode.commands.executeCommand("workbench.action.splitEditorLeft")
     }
-    const templatePath = vscode.Uri.joinPath(this.extensionUri, "configs/node-template.json").fsPath
-    const baseConfig = JSON.parse(await fs.readFile(templatePath, "utf8"))
+
+    const baseConfig = await getBaseConfiguration()
     // So this can be used with the TypeScript SDK
     if (process.env.TEMPORAL_DEBUGGER_EXTENSION_DEV_MODE) {
       baseConfig.skipFiles.push("${workspaceFolder}/packages/worker/src/**")
