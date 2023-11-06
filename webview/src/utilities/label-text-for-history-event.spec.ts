@@ -1,5 +1,4 @@
-import "mocha"
-import { assert } from "chai"
+import { describe, it, expect } from "vitest"
 import { getWorkflowTasks } from "./get-workflow-tasks"
 import { labelTextForHistoryEvent } from "./label-text-for-history-event"
 import { historyFromJSON } from "@temporalio/common/lib/proto-utils"
@@ -12,16 +11,14 @@ describe("labelTextForHistoryEvent", () => {
     const event = { ...workflowTasks[0].events[0] }
     delete event.eventType
 
-    assert.throws(
-      labelTextForHistoryEvent.bind(labelTextForHistoryEvent, event),
+    expect(labelTextForHistoryEvent.bind(labelTextForHistoryEvent, event)).to.throw(
       "Expected history event `eventType` to be defined",
     )
   })
 
   it("should format the event type name with the workflow type name for a WorkflowExecutionStarted event", () => {
     const workflowExecutionStartedEvent = workflowTasks[0].events[0]
-    assert.equal(
-      labelTextForHistoryEvent(workflowExecutionStartedEvent),
+    expect(labelTextForHistoryEvent(workflowExecutionStartedEvent)).toBe(
       "WorkflowExecutionStarted (workflow.completion)",
     )
   })
