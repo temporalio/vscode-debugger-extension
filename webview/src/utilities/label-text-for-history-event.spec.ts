@@ -19,7 +19,7 @@ describe("labelTextForHistoryEvent", () => {
   it("should format the event type name with the workflow type name for a WorkflowExecutionStarted event", () => {
     const workflowExecutionStartedEvent = workflowTasks[0].events[0]
     expect(labelTextForHistoryEvent(workflowExecutionStartedEvent)).toBe(
-      "WorkflowExecutionStarted (workflow.completion)",
+      "[1] WorkflowExecutionStarted (workflow.completion)",
     )
   })
 })
