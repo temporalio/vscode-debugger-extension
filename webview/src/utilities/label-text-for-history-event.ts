@@ -1,6 +1,6 @@
 import humanizeDuration from "humanize-duration"
 import { temporal } from "@temporalio/proto"
-import { tsToDate } from "@temporalio/common"
+import { optionalTsToMs } from "@temporalio/common/lib/time"
 import type { CategorizedEvent } from "../lib"
 
 function labelDetailsForHistoryEvent(event: CategorizedEvent) {
@@ -12,7 +12,7 @@ function labelDetailsForHistoryEvent(event: CategorizedEvent) {
     case temporal.api.enums.v1.EventType.EVENT_TYPE_WORKFLOW_EXECUTION_SIGNALED:
       return `(${event.workflowExecutionSignaledEventAttributes?.signalName})`
     case temporal.api.enums.v1.EventType.EVENT_TYPE_TIMER_STARTED:
-      return `⏱ (${humanizeDuration(tsToDate(event.timerStartedEventAttributes?.startToFireTimeout!).getTime())})`
+      return `⏱ (${humanizeDuration(optionalTsToMs(event.timerStartedEventAttributes?.startToFireTimeout) ?? 0)})`
     case temporal.api.enums.v1.EventType.EVENT_TYPE_TIMER_FIRED:
       return `⏱🔥`
     case temporal.api.enums.v1.EventType.EVENT_TYPE_TIMER_CANCELED:
@@ -21,7 +21,7 @@ function labelDetailsForHistoryEvent(event: CategorizedEvent) {
 }
 
 export function labelTextForHistoryEvent(event: CategorizedEvent): string {
-  const { eventType } = event
+  const { eventId, eventType } = event
 
   if (eventType === undefined || eventType === null) {
     throw new TypeError("Expected history event `eventType` to be defined")
@@ -34,5 +34,5 @@ export function labelTextForHistoryEvent(event: CategorizedEvent): string {
     .join("")
   const details = labelDetailsForHistoryEvent(event)
 
-  return `${eventTypeName} ${details ?? ""}`
+  return `[${eventId}] ${eventTypeName} ${details ?? ""}`
 }

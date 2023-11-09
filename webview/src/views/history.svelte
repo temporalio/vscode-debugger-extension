@@ -68,7 +68,7 @@
         <p>Workflow Task ({workflowTask.status})</p>
       </div>
       {#each workflowTask.events as event}
-        <li>
+        <li title={`Event ID: ${event.eventId}`}>
           {#if event?.category === "COMMAND"}
             <Icon name="arrow-left" />
           {:else}
