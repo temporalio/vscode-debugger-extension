@@ -1,17 +1,33 @@
 name: Release to VS Code Extension Marketplace
 
 on:
-  push:
-    branches: ["release"]
+  pull_request:
+    types: [closed]
 
 jobs:
   publish:
+    if: startsWith(github.head_ref, 'releases/') && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: npm ci
-      - run: npm run build
-      - run: npm test
-      - run: npm run publish
+      - name: Build package
+        run: npm run build
+      - name: Publish package to marketplace
+        run: npm run publish
         env:
           VSCE_PAT: ${{secrets.VSCODE_MARKETPLACE_PERSONAL_ACCESS_TOKEN}}
+  create_release:
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create Release
+        run: |
+          version=`cat ./package.json | jq -r .version`
+          echo "latest version: $version"
+          tag="v$version"
+          echo "creating release: $tag"
+          gh release create $tag --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.COMMANDER_DATA_TOKEN }}
