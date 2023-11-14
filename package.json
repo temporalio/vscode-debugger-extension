@@ -29,7 +29,6 @@
     "build.webview.watch": "rollup -c -w --watch.onEnd \"node scripts/reload-webview.mjs\"",
     "format": "prettier --write .",
     "lint": "eslint src --ext .ts --no-error-on-unmatched-pattern && prettier --end-of-line auto --check .",
-    "postversion": "git push && git push --tags",
     "publish": "vsce publish",
     "test": "vitest"
   },
