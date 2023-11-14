@@ -10,8 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Clean install
+        run: npm ci
       - name: Build package
         run: npm run build
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm test
       - name: Publish package to marketplace
         run: npm run publish
         env:
