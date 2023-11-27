@@ -29,7 +29,7 @@ Watch [the demo](https://www.youtube.com/watch?v=3IjQde9HMNY) or follow these in
 - Enter a Workflow Id or choose a history JSON file
 - Click `Start`
 - The Workflow Execution will start replaying and hit a breakpoint set on the first event
-- Set breakpoints in code or on history events
+- Set breakpoints in Workflow code (the extension uses a [replay Worker](https://typescript.temporal.io/api/classes/worker.Worker#runreplayhistory), so Activity code is not run) or on history events
 - Hit play or step forward
 - To restart from the beginning, click the green restart icon at the top of the screen, or if the debug session has ended, go back to the `MAIN` tab and `Start` again
 
