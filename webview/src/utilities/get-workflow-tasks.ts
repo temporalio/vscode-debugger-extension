@@ -51,6 +51,8 @@ function categorizeEvent(eventType: EventType): Category {
     case EventType.EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_REJECTED:
     case EventType.EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_COMPLETED:
     case EventType.EVENT_TYPE_WORKFLOW_PROPERTIES_MODIFIED:
+    case EventType.EVENT_TYPE_NEXUS_OPERATION_SCHEDULED:
+    case EventType.EVENT_TYPE_NEXUS_OPERATION_CANCEL_REQUESTED:
       return "COMMAND"
     // Completions and other non-command events go here
     case EventType.EVENT_TYPE_WORKFLOW_EXECUTION_STARTED:
@@ -74,6 +76,12 @@ function categorizeEvent(eventType: EventType): Category {
     case EventType.EVENT_TYPE_REQUEST_CANCEL_EXTERNAL_WORKFLOW_EXECUTION_FAILED:
     case EventType.EVENT_TYPE_WORKFLOW_PROPERTIES_MODIFIED_EXTERNALLY:
     case EventType.EVENT_TYPE_ACTIVITY_PROPERTIES_MODIFIED_EXTERNALLY:
+    case EventType.EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_ADMITTED:
+    case EventType.EVENT_TYPE_NEXUS_OPERATION_STARTED:
+    case EventType.EVENT_TYPE_NEXUS_OPERATION_COMPLETED:
+    case EventType.EVENT_TYPE_NEXUS_OPERATION_FAILED:
+    case EventType.EVENT_TYPE_NEXUS_OPERATION_CANCELED:
+    case EventType.EVENT_TYPE_NEXUS_OPERATION_TIMED_OUT:
       return "EVENT"
     default:
       return unhandledEventType(eventType)
