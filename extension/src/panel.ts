@@ -168,8 +168,8 @@ export class HistoryDebuggerPanel {
         clientCert && clientPrivateKey
           ? { clientCertPair: { crt: Buffer.from(clientCert), key: Buffer.from(clientPrivateKey) } }
           : tls
-          ? true
-          : false,
+            ? true
+            : false,
     })
   }
 
