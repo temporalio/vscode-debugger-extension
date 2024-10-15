@@ -1,8 +1,8 @@
 import type * as vscode from "vscode"
 import { supportsESM } from "./is-esm"
 
-const configuration = {
-  name: "Launch Program",
+const typeScriptConfiguration = {
+  name: "Temporal Debug (TypeScript)",
   type: "node",
   request: "launch",
   runtimeExecutable: "node",
@@ -18,10 +18,29 @@ const configuration = {
   pauseForSourceMap: true,
 } satisfies vscode.DebugConfiguration
 
-export const getBaseConfiguration = async (): Promise<vscode.DebugConfiguration> => {
-  const runtimeArgs = (await supportsESM())
-    ? ["--loader=ts-node/esm"]
-    : ["--nolazy", "-r", "ts-node/register/transpile-only"]
+const pythonConfiguration = {
+  name: "Temporal Debug (Python)",
+  type: "debugpy",
+  request: "launch",
+} satisfies vscode.DebugConfiguration
+
+async function nodeRuntimeArgs(): Promise<string[]> {
+  return (await supportsESM()) ? ["--loader=ts-node/esm"] : ["--nolazy", "-r", "ts-node/register/transpile-only"]
+}
+
+export const getBaseConfiguration = async (lang: string, entrypoint: string): Promise<vscode.DebugConfiguration> => {
+  let runtimeArgs: string[]
+  let configuration: vscode.DebugConfiguration
+
+  if (lang === "typescript") {
+    runtimeArgs = await nodeRuntimeArgs()
+    configuration = { ...typeScriptConfiguration, args: [entrypoint] }
+  } else if (lang === "python") {
+    runtimeArgs = []
+    configuration = { ...pythonConfiguration, program: entrypoint }
+  } else {
+    throw new Error("Unsupported language")
+  }
 
   return { ...configuration, runtimeArgs }
 }

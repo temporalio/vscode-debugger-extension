@@ -71,7 +71,9 @@ export class HistoryDebuggerPanel {
     })
     await this.panel.webview.postMessage({ type: "currentWFTUpdated", eventId })
     const hasBreakpoint = await p
+    console.log("Maybe breaking");
     if (hasBreakpoint) {
+      console.log("Should break");
       await vscode.commands.executeCommand("workbench.action.debug.pause")
     }
   }
@@ -250,7 +252,7 @@ export class HistoryDebuggerPanel {
     })
   }
 
-  private async getReplayerEndpoint() {
+  private async getReplayerEntrypoint(): Promise<string> {
     const config = vscode.workspace.getConfiguration("temporal")
     let replayerEntrypoint = config.get("replayerEntrypoint") as string
     const workspace = vscode.workspace.workspaceFolders?.[0]
@@ -259,7 +261,7 @@ export class HistoryDebuggerPanel {
 
     if (!configuredAbsolutePath) {
       if (workspaceFolder === undefined) {
-        throw new Error("temporal.replayerEndpoint not configured, cannot use default without a workspace folder")
+        throw new Error("temporal.replayerEntrypoint not configured, cannot use default without a workspace folder")
       } else {
         replayerEntrypoint = vscode.Uri.joinPath(workspaceFolder, replayerEntrypoint).fsPath
       }
@@ -270,22 +272,22 @@ export class HistoryDebuggerPanel {
       const { type } = stat
       if (type === vscode.FileType.Directory) {
         throw new Error(
-          `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is a folder, please provide a file instead`,
+          `Configured temporal.replayerEntrypoint (${replayerEntrypoint}) is a folder, please provide a file instead`,
         )
       }
       if (type === vscode.FileType.Unknown) {
         throw new Error(
-          `Configured temporal.replayerEndpoint (${replayerEntrypoint}) is of unknown type, please provide a file instead`,
+          `Configured temporal.replayerEntrypoint (${replayerEntrypoint}) is of unknown type, please provide a file instead`,
         )
       }
     } catch (err: any) {
       if (err?.code === vscode.FileSystemError.FileNotFound.name) {
         if (!configuredAbsolutePath && (vscode.workspace.workspaceFolders?.length ?? 0) > 1) {
           throw new Error(
-            `Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found (multiple workspace folders found, consider using an absolute path to disambiguate)`,
+            `Configured temporal.replayerEntrypoint (${replayerEntrypoint}) not found (multiple workspace folders found, consider using an absolute path to disambiguate)`,
           )
         }
-        throw new Error(`Configured temporal.replayerEndpoint (${replayerEntrypoint}) not found`)
+        throw new Error(`Configured temporal.replayerEntrypoint (${replayerEntrypoint}) not found`)
       }
       throw err
     }
@@ -299,7 +301,7 @@ export class HistoryDebuggerPanel {
     const buffer = Buffer.from(bytes)
     this.currentHistoryBuffer = buffer
     const workspace = vscode.workspace.workspaceFolders?.[0]
-    const replayerEndpoint = await this.getReplayerEndpoint()
+    const replayerEntryPoint = await this.getReplayerEntrypoint()
 
     await this.panel.webview.postMessage({ type: "historyProcessed", history: bytes })
     // Make sure the panel is out of focus before starting a debug session, otherwise it will be replaced with an
@@ -310,10 +312,21 @@ export class HistoryDebuggerPanel {
       await vscode.commands.executeCommand("workbench.action.splitEditorLeft")
     }
 
-    const baseConfig = await getBaseConfiguration()
+    let langType: string
+    if (replayerEntryPoint.endsWith(".ts")) {
+      langType = "typescript"
+    } else if (replayerEntryPoint.endsWith(".py")) {
+      langType = "python"
+    } else {
+      throw new Error("Unsupported language")
+    }
+
+    const baseConfig = await getBaseConfiguration(langType, replayerEntryPoint)
     // So this can be used with the TypeScript SDK
     if (process.env.TEMPORAL_DEBUGGER_EXTENSION_DEV_MODE) {
-      baseConfig.skipFiles.push("${workspaceFolder}/packages/worker/src/**")
+      if (baseConfig.skipFiles !== undefined) {
+        baseConfig.skipFiles.push("${workspaceFolder}/packages/worker/src/**")
+      }
     }
     // NOTE: Adding NODE_PATH below in case ts-node is not an installed dependency in the workspace.
     // From https://nodejs.org/api/modules.html#loading-from-the-global-folders:
@@ -323,7 +336,6 @@ export class HistoryDebuggerPanel {
     const pathPrefix = process.env.NODE_PATH ? `${process.env.NODE_PATH ?? ""}${delim}` : ""
     await vscode.debug.startDebugging(workspace, {
       ...baseConfig,
-      args: [replayerEndpoint],
       env: {
         TEMPORAL_DEBUGGER_PLUGIN_URL: this.server.url,
         NODE_PATH: `${pathPrefix}${path.join(__dirname, "../../node_modules")}`,

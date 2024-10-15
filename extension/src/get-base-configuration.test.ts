@@ -8,14 +8,14 @@ vi.mock("./is-esm", async () => ({
 
 describe("getBaseConfiguration", () => {
   it("returns the correct configuration for environments", async () => {
-    const { runtimeArgs } = await getBaseConfiguration()
+    const { runtimeArgs } = await getBaseConfiguration("typescript", "entrypoint.ts")
 
     expect(runtimeArgs).toEqual(["--nolazy", "-r", "ts-node/register/transpile-only"])
   })
 
   it("returns the correct configuration for ESM environments", async () => {
     vi.mocked(moduleType).supportsESM.mockResolvedValueOnce(true)
-    const { runtimeArgs } = await getBaseConfiguration()
+    const { runtimeArgs } = await getBaseConfiguration("typescript", "entrypoint.ts")
 
     expect(runtimeArgs).toEqual(["--loader=ts-node/esm"])
   })
