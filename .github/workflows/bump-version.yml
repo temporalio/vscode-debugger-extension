@@ -15,6 +15,9 @@ on:
           - minor
           - major
 
+permissions:
+  contents: read
+
 jobs:
   bump-version:
     runs-on: ubuntu-latest
