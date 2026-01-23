@@ -55,7 +55,7 @@
     "@temporalio/common": "^1.10.1",
     "@temporalio/proto": "^1.10.1",
     "@vscode/webview-ui-toolkit": "^1.4.0",
-    "express": "^4.19.2",
+    "express": "^4.22.1",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
